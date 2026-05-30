@@ -123,7 +123,58 @@
         .btn-ghost     { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
         .btn-ghost:hover { border-color: var(--muted); }
 
-        /* ── Calibration ── */
+        /* ── Marco Teórico ── */
+        .theory-toggle {
+            max-width: 520px; margin: 0 auto 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .theory-btn {
+            width: 100%; background: none; border: none;
+            padding: 13px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; color: var(--text);
+            font-size: 12px; font-weight: 600; letter-spacing: .06em;
+            text-transform: uppercase; color: var(--textdim);
+        }
+        .theory-btn:hover { background: rgba(255,255,255,0.03); }
+        .theory-chevron {
+            transition: transform .28s ease;
+            font-size: 10px; color: var(--accent);
+        }
+        .theory-body {
+            max-height: 0; overflow: hidden;
+            transition: max-height .35s ease, padding .25s ease;
+            padding: 0 16px;
+        }
+        .theory-body.open {
+            max-height: 1200px;
+            padding: 0 16px 16px;
+        }
+        .theory-chevron.open { transform: rotate(180deg); }
+
+        .th-section { margin-bottom: 16px; }
+        .th-section:last-child { margin-bottom: 0; }
+        .th-title {
+            font-size: 12px; font-weight: 700; color: var(--accent);
+            text-transform: uppercase; letter-spacing: .06em;
+            margin-bottom: 6px;
+        }
+        .th-text {
+            font-size: 13px; color: var(--textdim); line-height: 1.7;
+        }
+        .th-formula {
+            background: var(--surface); border-left: 3px solid var(--accent2);
+            border-radius: 0 8px 8px 0; padding: 8px 12px;
+            font-family: monospace; font-size: 13px; color: var(--accent2);
+            margin: 8px 0; letter-spacing: .03em;
+        }
+        .th-formula span { color: var(--textdim); font-size: 11px; margin-left: 10px; }
+        .th-divider {
+            height: 1px; background: var(--border); margin: 14px 0;
+        }
         .calib-row { display: flex; align-items: center; gap: 10px; }
         .calib-row input[type=number] {
             width: 90px; background: var(--surface);
@@ -159,16 +210,6 @@
         .val-green  { color: var(--accent); }
         .val-amber  { color: var(--warn); }
         .val-danger { color: var(--danger); }
-
-        /* g-error indicator */
-        .g-match {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 10px; padding: 12px 14px; margin-bottom: 14px;
-        }
-        .g-match .g-label { font-size: 11px; color: var(--textdim); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
-        .g-bar-wrap { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
-        .g-bar      { height: 100%; border-radius: 4px; transition: width .6s ease; }
-        .g-info { font-size: 11px; color: var(--textdim); display: flex; justify-content: space-between; }
 
         /* Replay */
         .replay-wrap {
@@ -232,6 +273,66 @@
 <div class="title-block">
     <h1>Grabadora <em>Cinemática</em></h1>
     <p>Proyecto Experimental · Física I</p>
+</div>
+
+<!-- ── 0. Marco Teórico ── -->
+<div class="theory-toggle">
+    <button class="theory-btn" id="theory-btn" onclick="toggleTheory()">
+        <span>0 · Marco Teórico — ¿Qué es la Cinemática?</span>
+        <span class="theory-chevron" id="theory-chevron">▼</span>
+    </button>
+    <div class="theory-body" id="theory-body">
+
+        <div class="th-section">
+            <div class="th-title">Definición</div>
+            <div class="th-text">
+                La <strong style="color:var(--text)">cinemática</strong> es la rama de la mecánica clásica que estudia el movimiento de los cuerpos en el espacio y el tiempo, <em>sin considerar las causas que lo originan</em> (las fuerzas). Su objetivo es describir <em>cómo</em> se mueve un objeto: dónde está, qué tan rápido va y si su velocidad cambia con el tiempo.
+            </div>
+        </div>
+
+        <div class="th-divider"></div>
+
+        <div class="th-section">
+            <div class="th-title">Magnitudes fundamentales</div>
+            <div class="th-text">Las tres magnitudes que esta app mide son:</div>
+            <div class="th-formula">y(t) <span>→ Posición: dónde está el objeto en cada instante t [metros]</span></div>
+            <div class="th-formula">v(t) = Δy / Δt <span>→ Velocidad: qué tan rápido cambia la posición [m/s]</span></div>
+            <div class="th-formula">a = Δv / Δt <span>→ Aceleración: qué tan rápido cambia la velocidad [m/s²]</span></div>
+            <div class="th-text" style="margin-top:8px;">
+                En caída libre, la única aceleración que actúa es la gravedad terrestre, cuyo valor teórico es <strong style="color:var(--text)">g = 9.81 m/s²</strong>, siempre dirigida hacia abajo.
+            </div>
+        </div>
+
+        <div class="th-divider"></div>
+
+        <div class="th-section">
+            <div class="th-title">Ecuaciones de movimiento uniformemente acelerado</div>
+            <div class="th-text">Cuando la aceleración es constante (como en caída libre ideal), el movimiento queda completamente descrito por:</div>
+            <div class="th-formula">v(t) = v₀ + a·t <span>→ Velocidad en función del tiempo</span></div>
+            <div class="th-formula">y(t) = y₀ + v₀·t + ½·a·t² <span>→ Posición en función del tiempo</span></div>
+            <div class="th-formula">vf² = v₀² + 2·a·Δy <span>→ Sin usar el tiempo</span></div>
+            <div class="th-text" style="margin-top:8px;">
+                La gráfica de <strong style="color:var(--accent2)">y(t)</strong> debe tener forma de parábola (curva cuadrática). La gráfica de <strong style="color:var(--accent)">v(t)</strong> debe ser una línea recta con pendiente igual a la aceleración.
+            </div>
+        </div>
+
+        <div class="th-divider"></div>
+
+        <div class="th-section">
+            <div class="th-title">Cómo lo aplica esta app</div>
+            <div class="th-text">
+                La app captura video en tiempo real y rastrea un objeto por su color usando el espacio de color <strong style="color:var(--text)">HSL</strong> (Tono, Saturación, Luminosidad). En cada frame de video registra la posición vertical del objeto en píxeles junto con su timestamp de alta resolución (<code style="color:var(--accent2);font-size:12px">performance.now()</code>).
+            </div>
+            <div class="th-text" style="margin-top:8px;">
+                Esas posiciones en píxeles se convierten a metros usando la <strong style="color:var(--text)">calibración</strong> que tú defines: si conoces la distancia real que recorre el objeto, la app puede calcular cuántos metros equivale cada píxel en tu encuadre. Con esa escala calcula:
+            </div>
+            <div class="th-formula">mPerPx = distancia_real [m] / distancia_píxeles [px]</div>
+            <div class="th-text" style="margin-top:8px;">
+                Para reducir el ruido propio de la visión artificial, las posiciones se suavizan con un <strong style="color:var(--text)">filtro exponencial</strong>, y las velocidades se calculan con una <strong style="color:var(--text)">ventana deslizante</strong> de 7 frames en lugar de derivadas directas entre frames consecutivos, que son muy sensibles al ruido.
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <!-- ── 1. Calibración ── -->
@@ -303,27 +404,6 @@
             <div class="metric-card">
                 <div class="label">Vel. final (vf)</div>
                 <div class="value val-amber" id="res-vf">—</div>
-            </div>
-        </div>
-
-        <!-- Aceleración + comparación con g -->
-        <div class="section-label">Aceleración calculada vs g teórico</div>
-        <div class="metrics" style="grid-template-columns:1fr 1fr;margin-bottom:10px;">
-            <div class="metric-card">
-                <div class="label">Aceleración medida (a)</div>
-                <div class="value val-danger" id="res-accel">—</div>
-            </div>
-            <div class="metric-card">
-                <div class="label">g teórico</div>
-                <div class="value" style="color:var(--textdim)">9.81 m/s²</div>
-            </div>
-        </div>
-        <div class="g-match" style="margin-bottom:14px;">
-            <div class="g-label">Precisión vs g=9.81 m/s²</div>
-            <div class="g-bar-wrap"><div class="g-bar" id="g-bar" style="width:0%;background:var(--accent);"></div></div>
-            <div class="g-info">
-                <span id="g-error-text">—</span>
-                <span id="g-pct-text">—</span>
             </div>
         </div>
 
@@ -653,11 +733,6 @@ function calcularFisica() {
     // v[i] = promedio de los VEL_WINDOW Δy/Δt centrado en i
     const vels = computeSmoothedVelocity(processedData, mPerPx, VEL_WINDOW);
 
-    // ── FIX: Aceleración por regresión lineal sobre v(t) ──
-    // a = pendiente de v vs t  (mínimos cuadrados)
-    const accel = linearRegression(processedData.map(d => d.t), vels);
-    const g_meas = accel;
-
     // Métricas
     const fallTime  = processedData[processedData.length - 1].t;
     const avgVel    = realMeters / fallTime;
@@ -665,27 +740,13 @@ function calcularFisica() {
     const vf_meas   = vels[vels.length - 1];
     const avgFps    = Math.round(processedData.length / fallTime);
 
-    // Comparación con g teórico
-    const G_THEO = 9.81;
-    const gError    = Math.abs(g_meas - G_THEO);
-    const gErrorPct = (gError / G_THEO) * 100;
-    const precision = Math.max(0, 100 - gErrorPct);
-
     // ── Mostrar métricas ──
     document.getElementById('res-time').textContent  = fallTime.toFixed(3) + ' s';
     document.getElementById('res-vel').textContent   = avgVel.toFixed(2)   + ' m/s';
     document.getElementById('res-v0').textContent    = v0_meas.toFixed(2)  + ' m/s';
     document.getElementById('res-vf').textContent    = vf_meas.toFixed(2)  + ' m/s';
-    document.getElementById('res-accel').textContent = g_meas.toFixed(2)   + ' m/s²';
     document.getElementById('res-fps').textContent   = avgFps;
     document.getElementById('res-frames').textContent= processedData.length;
-
-    // Barra de precisión
-    const barColor = gErrorPct < 10 ? 'var(--accent)' : gErrorPct < 25 ? 'var(--warn)' : 'var(--danger)';
-    document.getElementById('g-bar').style.width     = Math.min(100, precision).toFixed(1) + '%';
-    document.getElementById('g-bar').style.background= barColor;
-    document.getElementById('g-error-text').textContent = 'Error absoluto: ' + gError.toFixed(2) + ' m/s²';
-    document.getElementById('g-pct-text').textContent   = 'Precisión: ' + precision.toFixed(1) + '%';
 
     // ── Preparar datos para gráficas ──
     const labelsT  = processedData.map(d => d.t.toFixed(2));
@@ -693,7 +754,7 @@ function calcularFisica() {
     const dataV    = vels.map(v => v.toFixed(3));
 
     resultsPanel.classList.add('show');
-    renderCharts(labelsT, dataYm, dataV, accel);
+    renderCharts(labelsT, dataYm, dataV);
     drawTrackVisualization(fallRaw, fallSmooth, processedData[0].y);
     playSimulation();
 }
@@ -797,7 +858,7 @@ function drawTrackVisualization(rawArr, smoothArr, refCanvasH) {
 // ═══════════════════════════════════════════════════════
 //  GRÁFICAS
 // ═══════════════════════════════════════════════════════
-function renderCharts(labels, dataY, dataV, accel) {
+function renderCharts(labels, dataY, dataV) {
     chartsInst.forEach(c => c.destroy());
     chartsInst = [];
 
@@ -824,28 +885,15 @@ function renderCharts(labels, dataY, dataV, accel) {
         options: { ...baseOpts }
     }));
 
-    // v(t) – Velocidad suavizada + línea de regresión
-    const regLine = labels.map((_, i) => {
-        const t = processedData[i].t;
-        return (accel * t + parseFloat(dataV[0])).toFixed(3);
-    });
-
+    // v(t) – Velocidad suavizada (sin regresión lineal)
     chartsInst.push(new Chart(document.getElementById('chartV').getContext('2d'), {
         type: 'line',
-        data: { labels, datasets: [
-            {
-                label: 'Velocidad v(t) suavizada [m/s]',
-                data: dataV,
-                borderColor: '#00e5b4', backgroundColor: 'rgba(0,229,180,0.08)',
-                fill: true, tension: 0.3, pointRadius: 1.5
-            },
-            {
-                label: 'Regresión lineal (a=' + accel.toFixed(2) + ' m/s²)',
-                data: regLine,
-                borderColor: '#f59e0b', borderDash: [4, 3],
-                borderWidth: 1.5, pointRadius: 0, fill: false
-            }
-        ]},
+        data: { labels, datasets: [{
+            label: 'Velocidad v(t) [m/s]',
+            data: dataV,
+            borderColor: '#00e5b4', backgroundColor: 'rgba(0,229,180,0.08)',
+            fill: true, tension: 0.3, pointRadius: 1.5
+        }]},
         options: { ...baseOpts }
     }));
 }
@@ -957,6 +1005,16 @@ btnReset.addEventListener('click', () => {
     resultsPanel.classList.remove('show');
     if (animId) cancelAnimationFrame(animId);
 });
+
+// ═══════════════════════════════════════════════════════
+//  MARCO TEÓRICO – TOGGLE
+// ═══════════════════════════════════════════════════════
+function toggleTheory() {
+    const body    = document.getElementById('theory-body');
+    const chevron = document.getElementById('theory-chevron');
+    body.classList.toggle('open');
+    chevron.classList.toggle('open');
+}
 
 // ═══════════════════════════════════════════════════════
 //  INIT
