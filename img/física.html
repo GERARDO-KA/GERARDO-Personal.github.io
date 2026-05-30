@@ -3,470 +3,957 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProyectoCinemáitca - FísicaI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Grabadora Cinemática – Física I</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg:       #070d12;
+            --surface:  #0e1a22;
+            --card:     #111d27;
+            --border:   #1e3040;
+            --accent:   #00e5b4;
+            --accent2:  #38bdf8;
+            --warn:     #f59e0b;
+            --danger:   #ef4444;
+            --muted:    #4a6278;
+            --text:     #cfe8f7;
+            --textdim:  #5f8099;
+            --radius:   14px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 16px 16px 100px;
+            font-size: 14px;
+        }
+
+        /* ── Header ── */
+        .header {
+            max-width: 520px; margin: 0 auto 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            display: flex; gap: 14px; align-items: center;
+        }
+        .logo-box {
+            width: 52px; height: 52px; flex-shrink: 0;
+            background: #fff; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; border: 1px solid var(--border);
+        }
+        .logo-box img { width: 100%; object-fit: contain; padding: 4px; }
+        .header-info { line-height: 1.55; }
+        .header-info strong { color: var(--accent); font-size: 13px; }
+        .header-info span  { color: var(--textdim); font-size: 11px; display: block; }
+
+        /* ── Title ── */
+        .title-block {
+            max-width: 520px; margin: 0 auto 20px; text-align: center;
+        }
+        .title-block h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+        .title-block h1 em { font-style: normal; color: var(--accent); }
+        .title-block p  { color: var(--textdim); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+
+        /* ── Cards ── */
+        .card {
+            max-width: 520px; margin: 0 auto 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .card-head {
+            padding: 10px 14px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 12px; font-weight: 600; letter-spacing: .06em; color: var(--textdim); text-transform: uppercase;
+        }
+        .card-body { padding: 14px; }
+
+        /* ── Status pill ── */
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 600; color: var(--text);
+        }
+        .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--warn);
+        }
+        .dot.ready   { background: var(--accent); animation: pulse 1.4s infinite; }
+        .dot.rec     { background: var(--danger); animation: pulse .8s infinite; }
+        @keyframes pulse {
+            0%,100% { opacity: 1; } 50% { opacity: .35; }
+        }
+
+        /* ── FPS badge ── */
+        .fps-badge {
+            font-family: monospace; font-size: 11px; color: var(--textdim);
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 6px; padding: 2px 7px;
+        }
+
+        /* ── Video/Canvas area ── */
+        .cam-wrap {
+            position: relative; background: #000;
+            aspect-ratio: 16/9;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #video  { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
+        #canvas { width: 100%; height: 100%; object-fit: contain; cursor: crosshair; display: block; }
+
+        /* ── Buttons ── */
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 14px; background: var(--surface); }
+        .btn {
+            border: none; border-radius: 10px; padding: 13px 10px;
+            font-size: 13px; font-weight: 700; cursor: pointer; transition: all .18s;
+            letter-spacing: .02em;
+        }
+        .btn:disabled { opacity: .35; cursor: not-allowed; }
+        .btn-primary   { background: var(--accent2); color: #041020; }
+        .btn-primary:not(:disabled):hover { filter: brightness(1.12); }
+        .btn-record    { background: var(--accent); color: #041020; }
+        .btn-record:not(:disabled):hover { filter: brightness(1.1); }
+        .btn-stop      { background: var(--danger); color: #fff; }
+        .btn-stop:not(:disabled):hover { filter: brightness(1.12); }
+        .btn-ghost     { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+        .btn-ghost:hover { border-color: var(--muted); }
+
+        /* ── Calibration ── */
+        .calib-row { display: flex; align-items: center; gap: 10px; }
+        .calib-row input[type=number] {
+            width: 90px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 8px;
+            padding: 8px 10px; color: var(--accent); font-family: monospace;
+            font-size: 15px; text-align: center; outline: none;
+            transition: border-color .2s;
+        }
+        .calib-row input[type=number]:focus { border-color: var(--accent); }
+        .calib-row label { color: var(--textdim); font-size: 13px; }
+
+        /* ── Hint box ── */
+        .hint {
+            background: #091722; border-left: 3px solid var(--accent2);
+            border-radius: 8px; padding: 9px 12px;
+            font-size: 12px; color: var(--textdim); line-height: 1.6;
+        }
+        .hint strong { color: var(--accent2); }
+
+        /* ── Results ── */
+        .results { display: none; }
+        .results.show { display: block; }
+        .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        .metric-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px; text-align: center;
+        }
+        .metric-card .label { font-size: 10px; color: var(--textdim); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+        .metric-card .value { font-size: 22px; font-weight: 700; font-family: monospace; }
+        .metrics-4 { grid-template-columns: 1fr 1fr; }
+        .val-white  { color: #fff; }
+        .val-blue   { color: var(--accent2); }
+        .val-green  { color: var(--accent); }
+        .val-amber  { color: var(--warn); }
+        .val-danger { color: var(--danger); }
+
+        /* g-error indicator */
+        .g-match {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 14px; margin-bottom: 14px;
+        }
+        .g-match .g-label { font-size: 11px; color: var(--textdim); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+        .g-bar-wrap { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+        .g-bar      { height: 100%; border-radius: 4px; transition: width .6s ease; }
+        .g-info { font-size: 11px; color: var(--textdim); display: flex; justify-content: space-between; }
+
+        /* Replay */
+        .replay-wrap {
+            background: linear-gradient(to bottom, #0a2040 0%, #0d3518 100%);
+            border-radius: 10px; position: relative; overflow: hidden;
+            height: 200px; margin-bottom: 14px; border: 1px solid var(--border);
+        }
+        #simCanvas { width: 100%; height: 100%; display: block; }
+        #btn-replay {
+            position: absolute; bottom: 10px; right: 10px;
+            background: rgba(0,229,180,.15); border: 1px solid var(--accent);
+            color: var(--accent); border-radius: 8px; padding: 5px 12px;
+            font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s;
+        }
+        #btn-replay:hover { background: rgba(0,229,180,.3); }
+
+        /* Charts */
+        .chart-box {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 10px; margin-bottom: 10px;
+        }
+        .chart-box canvas { width: 100% !important; height: 140px !important; }
+
+        /* Track viz */
+        .track-canvas-wrap {
+            border-radius: 10px; overflow: hidden; margin-bottom: 14px;
+            border: 1px solid var(--border); position: relative;
+        }
+        #trackCanvas { width: 100%; display: block; background: #000; }
+        .track-legend {
+            display: flex; gap: 14px; padding: 8px 12px;
+            background: var(--surface); border-top: 1px solid var(--border);
+            font-size: 11px; color: var(--textdim);
+        }
+        .leg-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+
+        /* Section title inside results */
+        .section-label {
+            font-size: 11px; font-weight: 700; color: var(--textdim);
+            text-transform: uppercase; letter-spacing: .08em;
+            margin-bottom: 10px; padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased p-4">
+<body>
 
-    <!-- Membrete Académico Responsivo -->
-    <header class="max-w-md mx-auto bg-slate-950 border border-slate-800 rounded-2xl p-5 mb-6 shadow-xl">
-        <div class="flex items-center gap-4">
-            <!-- Espacio para el logo -->
-            <div class="w-16 h-16 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-700 shrink-0">
-                <!-- Pon aquí la URL de tu logo -->
-                <img src="./UMG.png" alt="Logo Universidad" class="object-contain p-1">
-            </div>
-            
-            <!-- Datos del estudiante -->
-            <div class="space-y-0.5">
-                <h2 class="text-sm font-bold text-emerald-400">Selvin Osorio Barrera</h2>
-                <p class="text-[10px] uppercase text-slate-400 tracking-wider">Ingeniería en Sistemas</p>
-                <p class="text-[10px] text-slate-500">Ciclo 2026 | Física I</p>
-                <p class="text-[10px] text-slate-500 italic">Catedrático: Ing. Jorge Rivera</p>
-            </div>
-        </div>
-    </header>
-
-    <!-- Título del Proyecto -->
-    <div class="max-w-md mx-auto text-center mb-6">
-        <h1 class="text-2xl font-bold tracking-tight text-white">RastreadorCinemática <span class="text-emerald-400">Física I</span></h1>
-        <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Proyecto de Cinemática Experimental - Física I</p>
+<!-- ── Header ── -->
+<header class="header">
+    <div class="logo-box">
+        <img src="./UMG.png" alt="UMG" onerror="this.parentElement.innerHTML='<span style=\'font-size:11px;color:#333;font-weight:700\'>UMG</span>'">
     </div>
+    <div class="header-info">
+        <strong>Selvin Osorio Barrera</strong>
+        <span>Ingeniería en Sistemas · Ciclo 2026 · Física I</span>
+        <span>Catedrático: Ing. Jorge Rivera</span>
+    </div>
+</header>
 
-    <main class="max-w-md mx-auto space-y-6 pb-24">
-        
-        <!-- 1. Configuración Física -->
-        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-xl">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">1. Calibración Física</h2>
-            ...        
-        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-xl">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">1. Calibración Física</h2>
-            <p class="text-xs text-slate-400">Ingresa la distancia real del movimiento para la escala (en metros).</p>
-            <div class="flex items-center gap-2">
-                <input type="number" id="real-distance" value="1.0" step="0.1" class="w-24 bg-slate-900 border border-slate-700 rounded-lg p-2 text-emerald-400 font-mono text-center focus:outline-none focus:border-emerald-500">
-                <span class="text-sm text-slate-300">metros reales</span>
+<!-- ── Title ── -->
+<div class="title-block">
+    <h1>Grabadora <em>Cinemática</em></h1>
+    <p>Proyecto Experimental · Física I</p>
+</div>
+
+<!-- ── 1. Calibración ── -->
+<div class="card">
+    <div class="card-head">1 · Calibración de escala</div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="hint">
+            <strong>Cómo calibrar:</strong> Coloca un objeto de referencia cuya longitud conoces dentro del encuadre. Ingresa esa distancia aquí. La app usará eso para convertir píxeles a metros.
+        </div>
+        <div class="calib-row">
+            <input type="number" id="real-distance" value="1.0" step="0.01" min="0.05">
+            <label>metros de referencia</label>
+        </div>
+    </div>
+</div>
+
+<!-- ── 2. Cámara ── -->
+<div class="card">
+    <div class="card-head">
+        <div class="status-pill">
+            <span class="dot" id="dot"></span>
+            <span id="status-text">Esperando cámara…</span>
+        </div>
+        <span class="fps-badge" id="fps-badge">-- FPS</span>
+    </div>
+    <div class="cam-wrap">
+        <video id="video" playsinline autoplay muted></video>
+        <canvas id="canvas"></canvas>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-record" id="btn-record" disabled>Selecciona objeto</button>
+        <button class="btn btn-ghost"  id="btn-reset">Reiniciar</button>
+    </div>
+</div>
+
+<!-- ── 3. Instrucciones ── -->
+<div class="card" id="hint-card">
+    <div class="card-body">
+        <div class="hint" style="border-color:var(--warn)">
+            <strong style="color:var(--warn)">Instrucciones:</strong><br>
+            1. Toca el objeto a seguir en la imagen.<br>
+            2. Espera a que el círculo verde lo encuentre.<br>
+            3. Presiona <strong style="color:var(--accent)">Grabar caída</strong> justo antes de soltar el objeto.<br>
+            4. Presiona <strong style="color:var(--danger)">Detener</strong> cuando el objeto llegue al suelo.
+        </div>
+    </div>
+</div>
+
+<!-- ── 4. Resultados ── -->
+<div class="card results" id="results-panel">
+    <div class="card-head">Reporte de Laboratorio</div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:0;">
+
+        <!-- Métricas principales -->
+        <div class="section-label" style="margin-top:0;">Cinemática medida</div>
+        <div class="metrics metrics-4" style="margin-bottom:14px;">
+            <div class="metric-card">
+                <div class="label">Tiempo caída (t)</div>
+                <div class="value val-white" id="res-time">—</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Vel. promedio (v̄)</div>
+                <div class="value val-blue" id="res-vel">—</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Vel. inicial (v₀)</div>
+                <div class="value val-green" id="res-v0">—</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Vel. final (vf)</div>
+                <div class="value val-amber" id="res-vf">—</div>
             </div>
         </div>
 
-        <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-            <div class="p-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
-                <span class="text-sm font-semibold flex items-center gap-2">
-                    <span id="status-indicator" class="h-2 w-2 rounded-full bg-yellow-500 animate-pulse"></span>
-                    <span id="status-text">Cámara: Esperando Selección</span>
-                </span>
+        <!-- Aceleración + comparación con g -->
+        <div class="section-label">Aceleración calculada vs g teórico</div>
+        <div class="metrics" style="grid-template-columns:1fr 1fr;margin-bottom:10px;">
+            <div class="metric-card">
+                <div class="label">Aceleración medida (a)</div>
+                <div class="value val-danger" id="res-accel">—</div>
             </div>
-            
-            <div class="relative bg-black aspect-video flex items-center justify-center overflow-hidden">
-                <video id="video" playsinline autoplay muted class="absolute opacity-0 pointer-events-none w-px h-px"></video>
-                <canvas id="canvas" class="w-full h-full object-contain cursor-crosshair"></canvas>
+            <div class="metric-card">
+                <div class="label">g teórico</div>
+                <div class="value" style="color:var(--textdim)">9.81 m/s²</div>
             </div>
-
-            <div class="p-4 grid grid-cols-2 gap-3 bg-slate-900/50">
-                <button id="btn-record" disabled class="w-full bg-slate-700 text-slate-400 font-bold py-3 px-4 rounded-xl transition">
-                    Selecciona Objeto
-                </button>
-                <button id="btn-reset" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-3 px-4 rounded-xl transition border border-slate-700">
-                    Reiniciar
-                </button>
+        </div>
+        <div class="g-match" style="margin-bottom:14px;">
+            <div class="g-label">Precisión vs g=9.81 m/s²</div>
+            <div class="g-bar-wrap"><div class="g-bar" id="g-bar" style="width:0%;background:var(--accent);"></div></div>
+            <div class="g-info">
+                <span id="g-error-text">—</span>
+                <span id="g-pct-text">—</span>
             </div>
         </div>
 
-        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-6 shadow-xl hidden" id="results-panel">
-            <div class="border-b border-slate-800 pb-2">
-                <h2 class="text-lg font-bold text-emerald-400">Reporte de Laboratorio</h2>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
-                    <span class="text-xs text-slate-400 block mb-1">Tiempo Total (t)</span>
-                    <span id="res-time" class="text-2xl font-bold font-mono text-white">0.000s</span>
-                </div>
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
-                    <span class="text-xs text-slate-400 block mb-1">Velocidad Promedio (v)</span>
-                    <span id="res-vel" class="text-2xl font-bold font-mono text-blue-400">0.0 m/s</span>
-                </div>
-            </div>
+        <!-- FPS del experimento -->
+        <div class="hint" style="margin-bottom:14px;">
+            <strong>Calidad de captura:</strong> <span id="res-fps">—</span> FPS promedio ·
+            <span id="res-frames">—</span> frames capturados
+        </div>
 
-            <div class="bg-blue-100 p-4 rounded-xl border border-slate-700 relative overflow-hidden">
-                <h3 class="text-xs font-bold text-slate-800 mb-2 uppercase">Replay de Caída</h3>
-                <div class="flex justify-center h-48 bg-gradient-to-b from-blue-200 to-green-300 rounded-lg border border-slate-400 relative">
-                    <canvas id="simCanvas" class="w-full h-full"></canvas>
-                    <button id="btn-replay" class="absolute bottom-2 right-2 bg-white text-blue-600 p-2 rounded-full shadow-md hover:bg-slate-100 transition">
-                        ▶ Reproducir
-                    </button>
-                </div>
-            </div>
-
-            <div class="space-y-4">
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    <canvas id="chartY" class="w-full h-40"></canvas>
-                </div>
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    <canvas id="chartV" class="w-full h-40"></canvas>
-                </div>
+        <!-- Trayectoria de tracking -->
+        <div class="section-label">Trayectoria del objeto (track visual)</div>
+        <div class="track-canvas-wrap" style="margin-bottom:14px;">
+            <canvas id="trackCanvas" height="160"></canvas>
+            <div class="track-legend">
+                <span><span class="leg-dot" style="background:#00e5b4"></span>Posición suavizada</span>
+                <span><span class="leg-dot" style="background:#38bdf8;opacity:.5;"></span>Posición cruda</span>
             </div>
         </div>
-    </main>
 
-    <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        
-        const simCanvas = document.getElementById('simCanvas');
-        const simCtx = simCanvas.getContext('2d');
+        <!-- Replay -->
+        <div class="section-label">Replay animado</div>
+        <div class="replay-wrap" style="margin-bottom:14px;">
+            <canvas id="simCanvas"></canvas>
+            <button id="btn-replay">▶ Replay</button>
+        </div>
 
-        const btnRecord = document.getElementById('btn-record');
-        const btnReset = document.getElementById('btn-reset');
-        const btnReplay = document.getElementById('btn-replay');
-        
-        const statusIndicator = document.getElementById('status-indicator');
-        const statusText = document.getElementById('status-text');
-        const resultsPanel = document.getElementById('results-panel');
-        const resTime = document.getElementById('res-time');
-        const resVel = document.getElementById('res-vel');
-        const inputDistance = document.getElementById('real-distance');
+        <!-- Gráficas -->
+        <div class="section-label">Gráficas y(t) y v(t)</div>
+        <div class="chart-box"><canvas id="chartY"></canvas></div>
+        <div class="chart-box"><canvas id="chartV"></canvas></div>
+    </div>
+</div>
 
-        let isTracking = false;
-        let trackingData = []; 
-        let startTime = 0;
-        let objectSelected = false;
-        let lastFallData = []; // Para el replay
-        let chartsInstance = []; // Para destruir graficas previas
-        
-        // Variables de precisión de color
-        let targetHue = 0, targetSat = 0, targetLight = 0;
-        let lastX = null, lastY = null;
-        const searchRadius = 80; 
-        const hueTolerance = 25;
+<script>
+// ═══════════════════════════════════════════════════════
+//  ELEMENTOS DOM
+// ═══════════════════════════════════════════════════════
+const video       = document.getElementById('video');
+const canvas      = document.getElementById('canvas');
+const ctx         = canvas.getContext('2d', { willReadFrequently: true });
+const simCanvas   = document.getElementById('simCanvas');
+const simCtx      = simCanvas.getContext('2d');
+const trackCanvas = document.getElementById('trackCanvas');
+const trackCtx    = trackCanvas.getContext('2d');
 
-        async function initCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
-                });
-                video.srcObject = stream;
-                
-                video.addEventListener('loadedmetadata', () => {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    simCanvas.width = 300; // Resolución interna del canvas de simulacion
-                    simCanvas.height = 400;
-                    video.play();
-                    requestAnimationFrame(processFrame);
-                });
-            } catch (err) {
-                alert("Verifica los permisos de cámara en tu navegador.");
-            }
-        }
+const btnRecord   = document.getElementById('btn-record');
+const btnReset    = document.getElementById('btn-reset');
+const btnReplay   = document.getElementById('btn-replay');
+const dot         = document.getElementById('dot');
+const statusText  = document.getElementById('status-text');
+const fpsBadge    = document.getElementById('fps-badge');
+const resultsPanel= document.getElementById('results-panel');
+const inputDist   = document.getElementById('real-distance');
 
-        function rgbToHsl(r, g, b) {
-            r /= 255, g /= 255, b /= 255;
-            let max = Math.max(r, g, b), min = Math.min(r, g, b);
-            let h, s, l = (max + min) / 2;
-            if (max == min) { h = s = 0; } 
-            else {
-                let d = max - min;
-                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-                switch (max) {
-                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                    case g: h = (b - r) / d + 2; break;
-                    case b: h = (r - g) / d + 4; break;
-                }
-                h /= 6;
-            }
-            return [h * 360, s * 100, l * 100];
-        }
+// ═══════════════════════════════════════════════════════
+//  ESTADO
+// ═══════════════════════════════════════════════════════
+let isTracking     = false;
+let objectSelected = false;
+let rawData        = [];          // [{t, x, y}] – posiciones crudas
+let smoothData     = [];          // [{t, x, y}] – posiciones suavizadas
+let processedData  = [];          // datos normalizados y filtrados para cálculos
+let lastFallData   = [];
+let chartsInst     = [];
+let animId         = null;
 
-        function processFrame() {
-            if (video.paused || video.ended) return;
+// Color target
+let targetH = 0, targetS = 0, targetL = 0;
 
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+// Ventana de suavizado (promedio móvil)
+const SMOOTH_N       = 5;
+const SEARCH_RADIUS  = 90;
+const HUE_TOL        = 28;
+const LIGHT_TOL      = 35;
 
-                if (objectSelected) {
-                    const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = frame.data;
-                    let sumX = 0, sumY = 0, count = 0;
+// Suavizado exponencial para la posición en tiempo real
+let smoothX = null, smoothY = null;
+const EXP_ALPHA = 0.4;   // 0 = sin movimiento, 1 = sin suavizado
 
-                    for (let i = 0; i < data.length; i += 16) { 
-                        const pixelIndex = i / 4;
-                        const x = pixelIndex % canvas.width;
-                        const y = Math.floor(pixelIndex / canvas.width);
+// FPS
+let fpsLastTime = 0, fpsFrameCount = 0, currentFps = 0;
+let startTime = 0;
 
-                        if (lastX !== null && lastY !== null) {
-                            const dist = Math.hypot(x - lastX, y - lastY);
-                            if (dist > searchRadius) continue;
-                        }
+// Ventana de velocidad suavizada (rolling window)
+const VEL_WINDOW = 7;
 
-                        const [h, s, l] = rgbToHsl(data[i], data[i+1], data[i+2]);
-                        let hueDiff = Math.abs(h - targetHue);
-                        if (hueDiff > 180) hueDiff = 360 - hueDiff;
-
-                        if (hueDiff < hueTolerance && Math.abs(l - targetLight) < 40) {
-                            sumX += x; sumY += y; count++;
-                        }
-                    }
-
-                    if (count > 10) {
-                        lastX = sumX / count; lastY = sumY / count;
-
-                        ctx.beginPath();
-                        ctx.arc(lastX, lastY, searchRadius, 0, 2 * Math.PI);
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.stroke();
-
-                        ctx.beginPath();
-                        ctx.arc(lastX, lastY, 10, 0, 2 * Math.PI);
-                        ctx.fillStyle = '#34d399'; ctx.fill();
-
-                        if (isTracking) {
-                            const time = (Date.now() - startTime) / 1000;
-                            trackingData.push({ t: time, x: lastX, y: lastY });
-                        }
-                    }
-                }
-            }
+// ═══════════════════════════════════════════════════════
+//  CÁMARA
+// ═══════════════════════════════════════════════════════
+async function initCamera() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        video.srcObject = stream;
+        video.addEventListener('loadedmetadata', () => {
+            canvas.width  = video.videoWidth;
+            canvas.height = video.videoHeight;
+            simCanvas.width  = 260;
+            simCanvas.height = 180;
+            trackCanvas.width  = trackCanvas.parentElement.clientWidth || 480;
+            video.play();
+            setStatus('Toca el objeto a rastrear', 'ready');
             requestAnimationFrame(processFrame);
+        });
+    } catch (e) {
+        setStatus('Error: verifica permisos de cámara', 'warn');
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+//  UTILIDADES DE COLOR
+// ═══════════════════════════════════════════════════════
+function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+    let h, s, l = (max+min)/2;
+    if (max === min) { h = s = 0; }
+    else {
+        const d = max - min;
+        s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+        switch(max){
+            case r: h = (g-b)/d + (g<b?6:0); break;
+            case g: h = (b-r)/d + 2; break;
+            case b: h = (r-g)/d + 4; break;
         }
+        h /= 6;
+    }
+    return [h*360, s*100, l*100];
+}
 
-        canvas.addEventListener('click', (e) => {
-            if (isTracking) return; 
-            
-            const rect = canvas.getBoundingClientRect();
-            const clickX = Math.floor((e.clientX - rect.left) * (canvas.width / rect.width));
-            const clickY = Math.floor((e.clientY - rect.top) * (canvas.height / rect.height));
+// ═══════════════════════════════════════════════════════
+//  ESTADO VISUAL
+// ═══════════════════════════════════════════════════════
+function setStatus(msg, state='idle') {
+    statusText.textContent = msg;
+    dot.className = 'dot' + (state === 'ready' ? ' ready' : state === 'rec' ? ' rec' : '');
+}
 
-            const pixel = ctx.getImageData(clickX, clickY, 1, 1).data;
-            const [h, s, l] = rgbToHsl(pixel[0], pixel[1], pixel[2]);
-            
-            targetHue = h; targetSat = s; targetLight = l;
-            lastX = clickX; lastY = clickY; 
-            objectSelected = true;
+// ═══════════════════════════════════════════════════════
+//  FRAME LOOP
+// ═══════════════════════════════════════════════════════
+function processFrame(timestamp) {
+    if (video.paused || video.ended) { requestAnimationFrame(processFrame); return; }
 
-            statusIndicator.classList.replace('bg-yellow-500', 'bg-emerald-500');
-            statusText.innerText = "Cámara: Objetivo Fijado";
-            
-            btnRecord.disabled = false;
-            btnRecord.classList.replace('bg-slate-700', 'bg-blue-600');
-            btnRecord.classList.replace('text-slate-400', 'text-white');
-            btnRecord.innerText = "Grabar Caída";
-        });
+    // FPS contador
+    fpsFrameCount++;
+    if (timestamp - fpsLastTime >= 1000) {
+        currentFps = fpsFrameCount;
+        fpsFrameCount = 0;
+        fpsLastTime = timestamp;
+        fpsBadge.textContent = currentFps + ' FPS';
+    }
 
-        btnRecord.addEventListener('click', () => {
-            if (!isTracking) {
-                isTracking = true; trackingData = []; startTime = Date.now();
-                btnRecord.innerText = "Detener y Calcular";
-                btnRecord.classList.replace('bg-blue-600', 'bg-red-600');
-                resultsPanel.classList.add('hidden');
-            } else {
-                isTracking = false;
-                btnRecord.innerText = "Grabar Caída";
-                btnRecord.classList.replace('bg-red-600', 'bg-blue-600');
-                calcularFisica();
-            }
-        });
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        function calcularFisica() {
-            if (trackingData.length < 5) {
-                alert("No se capturaron suficientes datos.");
-                return;
-            }
+        if (objectSelected) {
+            // ── Búsqueda de píxeles por HSL con radio de búsqueda ──
+            const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data  = frame.data;
+            let sumX = 0, sumY = 0, count = 0;
 
-            // Umbral de Movimiento (limpiando datos basura de inicio y fin)
-            let initialY = trackingData[0].y;
-            let startIndex = 0, endIndex = trackingData.length - 1;
+            // Sampleo 1/8 con restricción de radio
+            for (let i = 0; i < data.length; i += 32) {
+                const pixelIdx = i / 4;
+                const px = pixelIdx % canvas.width;
+                const py = Math.floor(pixelIdx / canvas.width);
 
-            for (let i = 1; i < trackingData.length; i++) {
-                if (trackingData[i].y > initialY + 5) { startIndex = i; break; }
-            }
-            for (let i = trackingData.length - 1; i > startIndex; i--) {
-                if (Math.abs(trackingData[i].y - trackingData[i-1].y) > 2) { endIndex = i; break; }
-            }
+                // Restricción de radio alrededor de la última posición suavizada
+                if (smoothX !== null) {
+                    const dist = Math.hypot(px - smoothX, py - smoothY);
+                    if (dist > SEARCH_RADIUS) continue;
+                }
 
-            const fallData = trackingData.slice(startIndex, endIndex + 1);
-            if (fallData.length < 2) {
-                alert("Caída no detectada correctamente.");
-                return;
+                const [h, s, l] = rgbToHsl(data[i], data[i+1], data[i+2]);
+                let hueDiff = Math.abs(h - targetH);
+                if (hueDiff > 180) hueDiff = 360 - hueDiff;
+
+                if (hueDiff < HUE_TOL && Math.abs(l - targetL) < LIGHT_TOL) {
+                    sumX += px; sumY += py; count++;
+                }
             }
 
-            // Normalizar tiempo a t=0
-            const t0 = fallData[0].t;
-            const processedData = fallData.map(d => ({
-                t: d.t - t0,
-                y: d.y
-            }));
+            if (count > 5) {
+                const rawX = sumX / count;
+                const rawY = sumY / count;
 
-            lastFallData = processedData; // Guardar para replay
-
-            // Cálculos
-            const fallTime = processedData[processedData.length - 1].t;
-            resTime.innerText = fallTime.toFixed(3) + "s";
-
-            const pixelDistance = processedData[processedData.length - 1].y - processedData[0].y;
-            const realDistanceMeters = parseFloat(inputDistance.value);
-            const scaleMetersPerPixel = realDistanceMeters / pixelDistance;
-            
-            const avgVelocity = realDistanceMeters / fallTime;
-            resVel.innerText = avgVelocity.toFixed(2) + " m/s";
-
-            // Preparar arreglos para gráficas
-            const labelsT = [];
-            const dataY = [];
-            const dataV = [];
-
-            for (let i = 0; i < processedData.length; i++) {
-                labelsT.push(processedData[i].t.toFixed(2));
-                
-                // Distancia real en metros desde el inicio (eje Y invertido, cayendo hacia abajo es positivo para nosotros)
-                const currentDistMeters = (processedData[i].y - processedData[0].y) * scaleMetersPerPixel;
-                dataY.push(currentDistMeters.toFixed(2));
-
-                // Velocidad instantánea (delta Y / delta T)
-                if (i === 0) {
-                    dataV.push(0);
+                // Suavizado exponencial de la posición (FIX 1)
+                if (smoothX === null) {
+                    smoothX = rawX; smoothY = rawY;
                 } else {
-                    const dt = processedData[i].t - processedData[i-1].t;
-                    const dyMeters = (processedData[i].y - processedData[i-1].y) * scaleMetersPerPixel;
-                    const vInst = dt > 0 ? (dyMeters / dt) : 0;
-                    dataV.push(vInst.toFixed(2));
+                    smoothX = EXP_ALPHA * rawX + (1 - EXP_ALPHA) * smoothX;
+                    smoothY = EXP_ALPHA * rawY + (1 - EXP_ALPHA) * smoothY;
+                }
+
+                // Dibujar indicadores
+                ctx.beginPath();
+                ctx.arc(smoothX, smoothY, SEARCH_RADIUS, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(smoothX, smoothY, 11, 0, Math.PI * 2);
+                ctx.fillStyle = '#00e5b4';
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // Cruz central
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(smoothX-5, smoothY); ctx.lineTo(smoothX+5, smoothY);
+                ctx.moveTo(smoothX, smoothY-5); ctx.lineTo(smoothX, smoothY+5);
+                ctx.stroke();
+
+                if (isTracking) {
+                    const t = (Date.now() - startTime) / 1000;
+                    rawData.push({ t, x: rawX,    y: rawY    });
+                    smoothData.push({ t, x: smoothX, y: smoothY });
                 }
             }
+        }
+    }
+    requestAnimationFrame(processFrame);
+}
 
-            resultsPanel.classList.remove('hidden');
-            renderCharts(labelsT, dataY, dataV);
-            playSimulation();
+// ═══════════════════════════════════════════════════════
+//  CLIC PARA SELECCIONAR OBJETO
+// ═══════════════════════════════════════════════════════
+canvas.addEventListener('click', (e) => {
+    if (isTracking) return;
+    const rect   = canvas.getBoundingClientRect();
+    const clickX = Math.floor((e.clientX - rect.left)  * (canvas.width  / rect.width));
+    const clickY = Math.floor((e.clientY - rect.top)   * (canvas.height / rect.height));
+
+    // Samplear zona de 5x5 para color más robusto
+    let sumH=0, sumS=0, sumL=0, n=0;
+    const region = ctx.getImageData(Math.max(0,clickX-2), Math.max(0,clickY-2), 5, 5);
+    for (let i = 0; i < region.data.length; i += 4) {
+        const [h,s,l] = rgbToHsl(region.data[i], region.data[i+1], region.data[i+2]);
+        sumH += h; sumS += s; sumL += l; n++;
+    }
+    targetH = sumH/n; targetS = sumS/n; targetL = sumL/n;
+
+    smoothX = clickX; smoothY = clickY;
+    objectSelected = true;
+
+    setStatus('Objeto fijado · Presiona Grabar', 'ready');
+    dot.classList.add('ready');
+
+    btnRecord.disabled = false;
+    btnRecord.textContent = 'Grabar caída';
+    btnRecord.className = 'btn btn-record';
+});
+
+// ═══════════════════════════════════════════════════════
+//  GRABAR / DETENER
+// ═══════════════════════════════════════════════════════
+btnRecord.addEventListener('click', () => {
+    if (!isTracking) {
+        isTracking = true;
+        rawData = []; smoothData = [];
+        startTime = Date.now();
+        setStatus('● Grabando caída…', 'rec');
+        btnRecord.textContent = 'Detener y calcular';
+        btnRecord.className   = 'btn btn-stop';
+        resultsPanel.classList.remove('show');
+    } else {
+        isTracking = false;
+        setStatus('Calculando…', 'ready');
+        btnRecord.textContent = 'Grabar caída';
+        btnRecord.className   = 'btn btn-record';
+        calcularFisica();
+    }
+});
+
+// ═══════════════════════════════════════════════════════
+//  CÁLCULO DE FÍSICA (CORRECCIONES APLICADAS)
+// ═══════════════════════════════════════════════════════
+function calcularFisica() {
+    if (smoothData.length < 10) {
+        alert('Pocos datos capturados. Intenta grabar por más tiempo.');
+        setStatus('Toca el objeto a rastrear', 'ready');
+        return;
+    }
+
+    // ── FIX 3: Umbral relativo al tamaño del frame ──
+    const MOVE_THRESH_START = canvas.height * 0.012;  // ~1.2% del alto
+    const MOVE_THRESH_END   = canvas.height * 0.006;
+
+    let startIdx = 0, endIdx = smoothData.length - 1;
+    const initY = smoothData[0].y;
+
+    for (let i = 1; i < smoothData.length; i++) {
+        if (smoothData[i].y > initY + MOVE_THRESH_START) { startIdx = i; break; }
+    }
+    for (let i = smoothData.length - 1; i > startIdx + 3; i--) {
+        if (Math.abs(smoothData[i].y - smoothData[i-1].y) > MOVE_THRESH_END) { endIdx = i; break; }
+    }
+
+    const fallSmooth = smoothData.slice(startIdx, endIdx + 1);
+    const fallRaw    = rawData.slice(startIdx, endIdx + 1);
+
+    if (fallSmooth.length < 5) {
+        alert('No se detectó caída suficiente. Asegúrate de que el objeto caiga verticalmente.');
+        setStatus('Toca el objeto a rastrear', 'ready');
+        return;
+    }
+
+    // Normalizar tiempo a t=0
+    const t0 = fallSmooth[0].t;
+    processedData = fallSmooth.map(d => ({ t: d.t - t0, y: d.y, x: d.x }));
+    lastFallData  = processedData;
+
+    // ── Calibración de escala ──
+    const pixelDistance = processedData[processedData.length - 1].y - processedData[0].y;
+    const realMeters    = parseFloat(inputDist.value) || 1.0;
+    const mPerPx        = realMeters / pixelDistance;  // metros por píxel
+
+    // ── FIX 5: Velocidades con ventana deslizante (rolling window) ──
+    // v[i] = promedio de los VEL_WINDOW Δy/Δt centrado en i
+    const vels = computeSmoothedVelocity(processedData, mPerPx, VEL_WINDOW);
+
+    // ── FIX: Aceleración por regresión lineal sobre v(t) ──
+    // a = pendiente de v vs t  (mínimos cuadrados)
+    const accel = linearRegression(processedData.map(d => d.t), vels);
+    const g_meas = accel;
+
+    // Métricas
+    const fallTime  = processedData[processedData.length - 1].t;
+    const avgVel    = realMeters / fallTime;
+    const v0_meas   = vels[0];
+    const vf_meas   = vels[vels.length - 1];
+    const avgFps    = Math.round(processedData.length / fallTime);
+
+    // Comparación con g teórico
+    const G_THEO = 9.81;
+    const gError    = Math.abs(g_meas - G_THEO);
+    const gErrorPct = (gError / G_THEO) * 100;
+    const precision = Math.max(0, 100 - gErrorPct);
+
+    // ── Mostrar métricas ──
+    document.getElementById('res-time').textContent  = fallTime.toFixed(3) + ' s';
+    document.getElementById('res-vel').textContent   = avgVel.toFixed(2)   + ' m/s';
+    document.getElementById('res-v0').textContent    = v0_meas.toFixed(2)  + ' m/s';
+    document.getElementById('res-vf').textContent    = vf_meas.toFixed(2)  + ' m/s';
+    document.getElementById('res-accel').textContent = g_meas.toFixed(2)   + ' m/s²';
+    document.getElementById('res-fps').textContent   = avgFps;
+    document.getElementById('res-frames').textContent= processedData.length;
+
+    // Barra de precisión
+    const barColor = gErrorPct < 10 ? 'var(--accent)' : gErrorPct < 25 ? 'var(--warn)' : 'var(--danger)';
+    document.getElementById('g-bar').style.width     = Math.min(100, precision).toFixed(1) + '%';
+    document.getElementById('g-bar').style.background= barColor;
+    document.getElementById('g-error-text').textContent = 'Error absoluto: ' + gError.toFixed(2) + ' m/s²';
+    document.getElementById('g-pct-text').textContent   = 'Precisión: ' + precision.toFixed(1) + '%';
+
+    // ── Preparar datos para gráficas ──
+    const labelsT  = processedData.map(d => d.t.toFixed(2));
+    const dataYm   = processedData.map(d => ((d.y - processedData[0].y) * mPerPx).toFixed(3));
+    const dataV    = vels.map(v => v.toFixed(3));
+
+    resultsPanel.classList.add('show');
+    renderCharts(labelsT, dataYm, dataV, accel);
+    drawTrackVisualization(fallRaw, fallSmooth, processedData[0].y);
+    playSimulation();
+}
+
+// ═══════════════════════════════════════════════════════
+//  VELOCIDAD SUAVIZADA CON VENTANA DESLIZANTE (FIX 2 & 5)
+// ═══════════════════════════════════════════════════════
+function computeSmoothedVelocity(data, mPerPx, windowHalf) {
+    const n = data.length;
+    const vels = [];
+    for (let i = 0; i < n; i++) {
+        const lo = Math.max(0, i - windowHalf);
+        const hi = Math.min(n - 1, i + windowHalf);
+        const dt = data[hi].t - data[lo].t;
+        const dy = (data[hi].y - data[lo].y) * mPerPx;
+        vels.push(dt > 0 ? dy / dt : 0);
+    }
+    return vels;
+}
+
+// ═══════════════════════════════════════════════════════
+//  REGRESIÓN LINEAL (FIX 4 – aceleración por mínimos cuadrados)
+// ═══════════════════════════════════════════════════════
+function linearRegression(xs, ys) {
+    const n = xs.length;
+    let sumX=0, sumY=0, sumXY=0, sumXX=0;
+    for (let i=0; i<n; i++) {
+        sumX  += xs[i];
+        sumY  += ys[i];
+        sumXY += xs[i]*ys[i];
+        sumXX += xs[i]*xs[i];
+    }
+    const slope = (n*sumXY - sumX*sumY) / (n*sumXX - sumX*sumX);
+    return slope;  // m/s² → aceleración
+}
+
+// ═══════════════════════════════════════════════════════
+//  TRAYECTORIA DE TRACKING VISUAL (nuevo)
+// ═══════════════════════════════════════════════════════
+function drawTrackVisualization(rawArr, smoothArr, refCanvasH) {
+    const tw = trackCanvas.width;
+    const th = trackCanvas.height;
+    trackCtx.clearRect(0, 0, tw, th);
+    trackCtx.fillStyle = '#000';
+    trackCtx.fillRect(0, 0, tw, th);
+
+    if (!rawArr.length) return;
+
+    // Mapear coordenadas Y del canvas original al track canvas
+    const minY = Math.min(...rawArr.map(d=>d.y));
+    const maxY = Math.max(...rawArr.map(d=>d.y));
+    const minX = Math.min(...rawArr.map(d=>d.x));
+    const maxX = Math.max(...rawArr.map(d=>d.x));
+
+    const rangeY = maxY - minY || 1;
+    const rangeX = maxX - minX || 1;
+    const pad = 20;
+
+    const mapX = x => pad + ((x - minX) / rangeX) * (tw - pad*2);
+    const mapY = y => pad + ((y - minY) / rangeY) * (th - pad*2);
+
+    // Puntos crudos (azul semitransparente)
+    rawArr.forEach(d => {
+        trackCtx.beginPath();
+        trackCtx.arc(mapX(d.x), mapY(d.y), 2, 0, Math.PI*2);
+        trackCtx.fillStyle = 'rgba(56,189,248,0.35)';
+        trackCtx.fill();
+    });
+
+    // Trayectoria suavizada (verde)
+    trackCtx.beginPath();
+    smoothArr.forEach((d, i) => {
+        const px = mapX(d.x), py = mapY(d.y);
+        i === 0 ? trackCtx.moveTo(px, py) : trackCtx.lineTo(px, py);
+    });
+    trackCtx.strokeStyle = '#00e5b4';
+    trackCtx.lineWidth   = 2;
+    trackCtx.stroke();
+
+    // Punto inicial (verde)
+    const s = smoothArr[0];
+    trackCtx.beginPath();
+    trackCtx.arc(mapX(s.x), mapY(s.y), 5, 0, Math.PI*2);
+    trackCtx.fillStyle = '#00e5b4';
+    trackCtx.fill();
+
+    // Punto final (rojo)
+    const e = smoothArr[smoothArr.length-1];
+    trackCtx.beginPath();
+    trackCtx.arc(mapX(e.x), mapY(e.y), 5, 0, Math.PI*2);
+    trackCtx.fillStyle = '#ef4444';
+    trackCtx.fill();
+}
+
+// ═══════════════════════════════════════════════════════
+//  GRÁFICAS
+// ═══════════════════════════════════════════════════════
+function renderCharts(labels, dataY, dataV, accel) {
+    chartsInst.forEach(c => c.destroy());
+    chartsInst = [];
+
+    Chart.defaults.color         = '#4a6278';
+    Chart.defaults.borderColor   = '#1e3040';
+    const baseOpts = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#5f8099', font: { size: 11 } } } },
+        scales: {
+            x: { grid: { color: '#1e3040' }, ticks: { maxTicksLimit: 8, font: { size: 10 } } },
+            y: { grid: { color: '#1e3040' }, ticks: { font: { size: 10 } } }
+        }
+    };
+
+    // y(t) – Posición
+    chartsInst.push(new Chart(document.getElementById('chartY').getContext('2d'), {
+        type: 'line',
+        data: { labels, datasets: [{
+            label: 'Posición y(t) [m]',
+            data: dataY,
+            borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.1)',
+            fill: true, tension: 0.35, pointRadius: 1.5
+        }]},
+        options: { ...baseOpts }
+    }));
+
+    // v(t) – Velocidad suavizada + línea de regresión
+    const regLine = labels.map((_, i) => {
+        const t = processedData[i].t;
+        return (accel * t + parseFloat(dataV[0])).toFixed(3);
+    });
+
+    chartsInst.push(new Chart(document.getElementById('chartV').getContext('2d'), {
+        type: 'line',
+        data: { labels, datasets: [
+            {
+                label: 'Velocidad v(t) suavizada [m/s]',
+                data: dataV,
+                borderColor: '#00e5b4', backgroundColor: 'rgba(0,229,180,0.08)',
+                fill: true, tension: 0.3, pointRadius: 1.5
+            },
+            {
+                label: 'Regresión lineal (a=' + accel.toFixed(2) + ' m/s²)',
+                data: regLine,
+                borderColor: '#f59e0b', borderDash: [4, 3],
+                borderWidth: 1.5, pointRadius: 0, fill: false
+            }
+        ]},
+        options: { ...baseOpts }
+    }));
+}
+
+// ═══════════════════════════════════════════════════════
+//  REPLAY ANIMADO
+// ═══════════════════════════════════════════════════════
+function playSimulation() {
+    if (animId) cancelAnimationFrame(animId);
+    if (!lastFallData.length) return;
+
+    const sw = simCanvas.width, sh = simCanvas.height;
+    const totalTime = lastFallData[lastFallData.length-1].t;
+    const startY    = lastFallData[0].y;
+    const endY      = lastFallData[lastFallData.length-1].y;
+    const rangeY    = endY - startY || 1;
+    let t0 = null;
+
+    function frame(ts) {
+        if (!t0) t0 = ts;
+        const elapsed = (ts - t0) / 1000;
+
+        simCtx.clearRect(0, 0, sw, sh);
+
+        // Fondo degradado
+        const grad = simCtx.createLinearGradient(0, 0, 0, sh);
+        grad.addColorStop(0, '#0a2040');
+        grad.addColorStop(1, '#0d3518');
+        simCtx.fillStyle = grad;
+        simCtx.fillRect(0, 0, sw, sh);
+
+        // Regla
+        simCtx.strokeStyle = 'rgba(255,255,255,0.15)';
+        simCtx.lineWidth = 1;
+        simCtx.setLineDash([4, 6]);
+        simCtx.beginPath();
+        simCtx.moveTo(sw/2, 8); simCtx.lineTo(sw/2, sh-8);
+        simCtx.stroke();
+        simCtx.setLineDash([]);
+
+        // Marcas de regla
+        for (let i=0; i<=4; i++) {
+            const ym = 10 + i * ((sh-20)/4);
+            simCtx.strokeStyle = 'rgba(255,255,255,0.2)';
+            simCtx.lineWidth = 1;
+            simCtx.beginPath();
+            simCtx.moveTo(sw/2-8, ym); simCtx.lineTo(sw/2+8, ym);
+            simCtx.stroke();
         }
 
-        function renderCharts(labels, dataY, dataV) {
-            // Destruir gráficas viejas si existen
-            chartsInstance.forEach(chart => chart.destroy());
-            chartsInstance = [];
-
-            // Config común para estilo oscuro
-            Chart.defaults.color = '#94a3b8';
-            Chart.defaults.borderColor = '#334155';
-
-            // Gráfica de Posición y(t)
-            const ctxY = document.getElementById('chartY').getContext('2d');
-            chartsInstance.push(new Chart(ctxY, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Posición y(m)',
-                        data: dataY,
-                        borderColor: '#3b82f6', // Blue
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        fill: true, tension: 0.3, pointRadius: 2
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
-            }));
-
-            // Gráfica de Velocidad v(t)
-            const ctxV = document.getElementById('chartV').getContext('2d');
-            chartsInstance.push(new Chart(ctxV, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Velocidad v(m/s)',
-                        data: dataV,
-                        borderColor: '#10b981', // Emerald
-                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                        fill: true, tension: 0.4, pointRadius: 2
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
-            }));
+        // Posición interpolada del objeto
+        let curr = lastFallData[lastFallData.length-1];
+        for (let i=0; i<lastFallData.length; i++) {
+            if (lastFallData[i].t >= elapsed) { curr = lastFallData[i]; break; }
         }
+        const prog = (curr.y - startY) / rangeY;
+        const simY  = 14 + prog * (sh - 28);
 
-        let animationId;
-        function playSimulation() {
-            if (animationId) cancelAnimationFrame(animationId);
-            if (!lastFallData || lastFallData.length === 0) return;
-
-            const totalTime = lastFallData[lastFallData.length - 1].t;
-            const startY = lastFallData[0].y;
-            const endY = lastFallData[lastFallData.length - 1].y;
-            const rangeY = endY - startY;
-
-            let startTimeAnim = null;
-
-            function drawFrame(timestamp) {
-                if (!startTimeAnim) startTimeAnim = timestamp;
-                const elapsedAnimTime = (timestamp - startTimeAnim) / 1000; // en segundos
-
-                // Limpiar fondo
-                simCtx.clearRect(0, 0, simCanvas.width, simCanvas.height);
-
-                // Dibujar Regla/Escala central
-                simCtx.strokeStyle = '#64748b'; // Slate 500
-                simCtx.lineWidth = 2;
+        // Estela
+        const tailLen = Math.min(8, lastFallData.findIndex(d => d.t >= elapsed));
+        if (tailLen > 1) {
+            for (let k = Math.max(0, lastFallData.findIndex(d => d.t >= elapsed) - tailLen);
+                 k < lastFallData.findIndex(d => d.t >= elapsed); k++) {
+                const py = 14 + ((lastFallData[k].y - startY) / rangeY) * (sh-28);
                 simCtx.beginPath();
-                simCtx.moveTo(simCanvas.width / 2 - 30, 20);
-                simCtx.lineTo(simCanvas.width / 2 - 30, simCanvas.height - 20);
-                simCtx.stroke();
-                
-                // Marcas de la regla
-                for(let i=0; i<=5; i++){
-                    let yMark = 20 + (i * ((simCanvas.height - 40) / 5));
-                    simCtx.beginPath();
-                    simCtx.moveTo(simCanvas.width / 2 - 35, yMark);
-                    simCtx.lineTo(simCanvas.width / 2 - 25, yMark);
-                    simCtx.stroke();
-                }
-
-                // Encontrar los datos correspondientes al tiempo actual de la animación
-                let currentFrameData = lastFallData[lastFallData.length - 1]; // Default al final
-                for (let i = 0; i < lastFallData.length; i++) {
-                    if (lastFallData[i].t >= elapsedAnimTime) {
-                        currentFrameData = lastFallData[i];
-                        break;
-                    }
-                }
-
-                // Mapear el Y real al Y del canvas de simulación
-                const progress = (currentFrameData.y - startY) / rangeY;
-                const simY = 20 + (progress * (simCanvas.height - 40));
-
-                // Dibujar la pelota
-                simCtx.fillStyle = '#dc2626'; // Rojo vibrante
-                simCtx.beginPath();
-                simCtx.arc(simCanvas.width / 2 + 10, simY, 15, 0, Math.PI * 2);
+                simCtx.arc(sw/2, py, 3*(k/(lastFallData.findIndex(d=>d.t>=elapsed)||1)), 0, Math.PI*2);
+                simCtx.fillStyle = `rgba(0,229,180,${0.1+0.1*(k/tailLen)})`;
                 simCtx.fill();
-                simCtx.strokeStyle = '#991b1b';
-                simCtx.lineWidth = 2;
-                simCtx.stroke();
-
-                // Dibujar cronómetro en pantalla
-                simCtx.fillStyle = '#1e293b';
-                simCtx.font = 'bold 20px monospace';
-                simCtx.fillText(`${Math.min(elapsedAnimTime, totalTime).toFixed(3)}s`, 10, 30);
-
-                if (elapsedAnimTime < totalTime) {
-                    animationId = requestAnimationFrame(drawFrame);
-                }
             }
-            animationId = requestAnimationFrame(drawFrame);
         }
 
-        btnReplay.addEventListener('click', () => {
-            playSimulation();
-        });
+        // Pelota
+        simCtx.beginPath();
+        simCtx.arc(sw/2, simY, 12, 0, Math.PI*2);
+        simCtx.fillStyle = '#dc2626';
+        simCtx.fill();
+        simCtx.strokeStyle = '#fca5a5';
+        simCtx.lineWidth = 1.5;
+        simCtx.stroke();
 
-        btnReset.addEventListener('click', () => {
-            trackingData = []; objectSelected = false; lastX = null; lastY = null;
-            btnRecord.disabled = true;
-            btnRecord.innerText = "Selecciona Objeto";
-            btnRecord.className = "w-full bg-slate-700 text-slate-400 font-bold py-3 px-4 rounded-xl transition";
-            statusIndicator.className = "h-2 w-2 rounded-full bg-yellow-500 animate-pulse";
-            statusText.innerText = "Cámara: Esperando Selección";
-            resultsPanel.classList.add('hidden');
-        });
+        // Cronómetro
+        simCtx.fillStyle = 'rgba(0,0,0,0.55)';
+        simCtx.beginPath();
+        simCtx.roundRect(6, 6, 78, 22, 5);
+        simCtx.fill();
+        simCtx.fillStyle = '#00e5b4';
+        simCtx.font = 'bold 13px monospace';
+        simCtx.fillText(Math.min(elapsed, totalTime).toFixed(3) + 's', 10, 21);
 
-        window.onload = initCamera;
-    </script>
+        if (elapsed < totalTime) animId = requestAnimationFrame(frame);
+    }
+    animId = requestAnimationFrame(frame);
+}
+
+btnReplay.addEventListener('click', playSimulation);
+
+// ═══════════════════════════════════════════════════════
+//  REINICIAR
+// ═══════════════════════════════════════════════════════
+btnReset.addEventListener('click', () => {
+    rawData = []; smoothData = []; processedData = [];
+    objectSelected = false; isTracking = false;
+    smoothX = null; smoothY = null;
+
+    btnRecord.disabled    = true;
+    btnRecord.textContent = 'Selecciona objeto';
+    btnRecord.className   = 'btn btn-record';
+    setStatus('Toca el objeto a rastrear', 'ready');
+    resultsPanel.classList.remove('show');
+    if (animId) cancelAnimationFrame(animId);
+});
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+window.onload = initCamera;
+</script>
 </body>
 </html>
