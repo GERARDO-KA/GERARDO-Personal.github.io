@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KinematicTracker Pro - Visión Artificial</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+
+    <header class="border-b border-slate-800 bg-slate-950 p-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight text-emerald-400">Kinematic<span class="text-white font-normal">Tracker</span></h1>
+            <span class="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-md border border-slate-700">Módulo: Cinemática</span>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 space-y-6 pb-24">
+        
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+            <div class="p-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
+                <span class="text-sm font-semibold flex items-center gap-2">
+                    <span id="status-indicator" class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                    Cámara en Vivo
+                </span>
+                <span id="coords-display" class="text-xs text-slate-400 font-mono">X: 0 | Y: 0</span>
+            </div>
+            
+            <div class="relative bg-black aspect-video flex items-center justify-center">
+                <video id="video" playsinline class="hidden"></video>
+                <canvas id="canvas" class="w-full h-full object-contain"></canvas>
+            </div>
+
+            <div class="p-4 grid grid-cols-2 gap-3 bg-slate-900/50">
+                <button id="btn-record" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-emerald-500/10 flex justify-center items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                    Iniciar Rastreo
+                </button>
+                <button id="btn-reset" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-3 px-4 rounded-xl transition border border-slate-700">
+                    Reiniciar Datos
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-xl">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">Calibración de Objetivo</h2>
+            <p class="text-xs text-slate-400">Toca un punto en el video arriba para seleccionar el color del objeto que deseas rastrear.</p>
+            <div class="flex items-center gap-3 bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <div id="color-preview" class="w-10 h-10 rounded-lg border border-slate-700 bg-red-600"></div>
+                <div class="text-xs font-mono text-slate-300">
+                    Muestra RGB elegida:<br>
+                    <span id="rgb-text" class="text-emerald-400">rgb(220, 38, 38)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-4 shadow-xl">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">Resultados del Análisis</h2>
+            
+            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <canvas id="kinematicChart" class="w-full h-48"></canvas>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                    <span class="text-xs text-slate-400 block mb-1">Puntos Capturados</span>
+                    <span id="stat-points" class="text-xl font-bold font-mono text-emerald-400">0</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                    <span class="text-xs text-slate-400 block mb-1">Duración</span>
+                    <span id="stat-duration" class="text-xl font-bold font-mono text-emerald-400">0.0s</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        
+        // Elementos de la interfaz
+        const btnRecord = document.getElementById('btn-record');
+        const btnReset = document.getElementById('btn-reset');
+        const colorPreview = document.getElementById('color-preview');
+        const rgbText = document.getElementById('rgb-text');
+        const coordsDisplay = document.getElementById('coords-display');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statPoints = document.getElementById('stat-points');
+        const statDuration = document.getElementById('stat-duration');
+
+        // Variables de control
+        let isTracking = false;
+        let trackingData = []; // Guarda objetos {t, x, y}
+        let startTime = 0;
+        
+        // Color por defecto a buscar (Rojo brillante)
+        let targetColor = { r: 220, g: 38, b: 38 };
+        let tolerance = 45; // Margen de diferencia de color
+
+        // Inicializar Gráfica con Chart.js
+        const chartCtx = document.getElementById('kinematicChart').getContext('2d');
+        const kinematicChart = new Chart(chartCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Posición X (px)',
+                        data: [],
+                        borderColor: '#34d399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Posición Y Invertida (px)',
+                        data: [],
+                        borderColor: '#60a5fa',
+                        backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
+                scales: {
+                    x: { title: { display: true, text: 'Tiempo (s)', color: '#64748b' }, grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                    y: { title: { display: true, text: 'Posición (píxeles)', color: '#64748b' }, grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // Configurar acceso a la cámara trasera del celular
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: false
+                });
+                video.srcObject = stream;
+                video.play();
+            } catch (err) {
+                alert("Error al acceder a la cámara. Asegúrate de otorgar permisos y usar HTTPS.");
+                console.error(err);
+            }
+        }
+
+        // Evento cuando el video empiece a reproducirse
+        video.addEventListener('play', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            requestAnimationFrame(processFrame);
+        });
+
+        // Loop principal de procesamiento de imágenes
+        function processFrame() {
+            if (video.paused || video.ended) return;
+
+            // Dibujar el frame actual de la cámara en el canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Obtener todos los píxeles del canvas
+            const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = frame.data;
+
+            let sumX = 0;
+            let sumY = 0;
+            let count = 0;
+
+            // Analizar la matriz de píxeles (brinca de 4 en 4: R, G, B, A)
+            for (let i = 0; i < data.length; i += 16) { // Muestreo cada 4 píxeles para optimizar velocidad en celulares
+                const r = data[i];
+                const g = data[i+1];
+                const b = data[i+2];
+
+                // Calcular distancia Euclidiana de color
+                const colorDistance = Math.sqrt(
+                    Math.pow(r - targetColor.r, 2) +
+                    Math.pow(g - targetColor.g, 2) +
+                    Math.pow(b - targetColor.b, 2)
+                );
+
+                // Si está dentro de la tolerancia, acumular su posición
+                if (colorDistance < tolerance) {
+                    const pixelIndex = i / 4;
+                    const x = pixelIndex % canvas.width;
+                    const y = Math.floor(pixelIndex / canvas.width);
+
+                    sumX += x;
+                    sumY += y;
+                    count++;
+                }
+            }
+
+            // Si se detectó una masa crítica de píxeles del color objetivo
+            if (count > 30) {
+                const avgX = Math.round(sumX / count);
+                const avgY = Math.round(sumY / count);
+
+                // Dibujar una mira sobre el objeto detectado
+                ctx.beginPath();
+                ctx.arc(avgX, avgY, 15, 0, 2 * Math.PI);
+                ctx.strokeStyle = '#34d399';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                ctx.fillStyle = '#34d399';
+                ctx.fillRect(avgX - 2, avgY - 10, 4, 20);
+                ctx.fillRect(avgX - 10, avgY - 2, 20, 4);
+
+                coordsDisplay.innerText = `X: ${avgX} | Y: ${avgY}`;
+
+                // Guardar datos si el rastreo está activo
+                if (isTracking) {
+                    const currentTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    
+                    // En física 'Y' sube, pero en las pantallas 'Y' baja. Invertimos el eje visualmente para la gráfica.
+                    const physicsY = canvas.height - avgY; 
+
+                    trackingData.push({ t: currentTime, x: avgX, y: physicsY });
+                    updateDashboard(currentTime);
+                }
+            } else {
+                coordsDisplay.innerText = "Buscando objetivo...";
+            }
+
+            requestAnimationFrame(processFrame);
+        }
+
+        // Permitir seleccionar el color tocando la pantalla
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = Math.floor((e.clientX - rect.left) * (canvas.width / rect.width));
+            const clickY = Math.floor((e.clientY - rect.top) * (canvas.height / rect.height));
+
+            const pixel = ctx.getImageData(clickX, clickY, 1, 1).data;
+            targetColor = { r: pixel[0], g: pixel[1], b: pixel[2] };
+
+            // Actualizar interfaz
+            colorPreview.style.backgroundColor = `rgb(${targetColor.r}, ${targetColor.g}, ${targetColor.b})`;
+            rgbText.innerText = `rgb(${targetColor.r}, ${targetColor.g}, ${targetColor.b})`;
+        });
+
+        // Controlar grabación / Rastreo
+        btnRecord.addEventListener('click', () => {
+            if (!isTracking) {
+                // Iniciar
+                isTracking = true;
+                trackingData = [];
+                startTime = Date.now();
+                btnRecord.innerText = "Detener Análisis";
+                btnRecord.classList.replace('bg-emerald-500', 'bg-red-500');
+                btnRecord.classList.replace('hover:bg-emerald-600', 'hover:bg-red-600');
+                statusIndicator.classList.replace('bg-red-500', 'bg-emerald-500');
+            } else {
+                // Detener y generar gráfica final
+                isTracking = false;
+                btnRecord.innerText = "Iniciar Rastreo";
+                btnRecord.classList.replace('bg-red-500', 'bg-emerald-500');
+                btnRecord.classList.replace('hover:bg-red-600', 'hover:bg-emerald-600');
+                statusIndicator.classList.replace('bg-emerald-500', 'bg-red-500');
+                renderChart();
+            }
+        });
+
+        // Limpiar pantalla de datos
+        btnReset.addEventListener('click', () => {
+            trackingData = [];
+            statPoints.innerText = "0";
+            statDuration.innerText = "0.0s";
+            kinematicChart.data.labels = [];
+            kinematicChart.data.datasets[0].data = [];
+            kinematicChart.data.datasets[1].data = [];
+            kinematicChart.update();
+        });
+
+        // Actualizar métricas del dashboard en tiempo real
+        function updateDashboard(time) {
+            statPoints.innerText = trackingData.length;
+            statDuration.innerText = `${time}s`;
+        }
+
+        // Cargar datos procesados en Chart.js
+        function renderChart() {
+            const labels = trackingData.map(d => d.t);
+            const dataX = trackingData.map(d => d.x);
+            const dataY = trackingData.map(d => d.y);
+
+            kinematicChart.data.labels = labels;
+            kinematicChart.data.datasets[0].data = dataX;
+            kinematicChart.data.datasets[1].data = dataY;
+            kinematicChart.update();
+        }
+
+        // Arrancar cámara al iniciar la página
+        window.onload = initCamera;
+    </script>
+</body>
+</html>
