@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KinematicTracker Pro v3 - Físico</title>
+    <title>KinematicTracker Pro v4 - Simulación</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -11,7 +11,7 @@
 
     <header class="border-b border-slate-800 bg-slate-950 p-4 sticky top-0 z-50 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-tight text-emerald-400">Kinematic<span class="text-white font-normal">Tracker</span> <span class="text-xs text-slate-500">v3</span></h1>
+            <h1 class="text-xl font-bold tracking-tight text-emerald-400">Kinematic<span class="text-white font-normal">Tracker</span> <span class="text-xs text-slate-500">v4</span></h1>
         </div>
     </header>
 
@@ -19,10 +19,10 @@
         
         <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-xl">
             <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">1. Calibración Física</h2>
-            <p class="text-xs text-slate-400">Ingresa la distancia real del movimiento para calcular la velocidad exacta en m/s.</p>
+            <p class="text-xs text-slate-400">Ingresa la distancia real del movimiento para la escala (en metros).</p>
             <div class="flex items-center gap-2">
                 <input type="number" id="real-distance" value="1.0" step="0.1" class="w-24 bg-slate-900 border border-slate-700 rounded-lg p-2 text-emerald-400 font-mono text-center focus:outline-none focus:border-emerald-500">
-                <span class="text-sm text-slate-300">metros (Referencia visual)</span>
+                <span class="text-sm text-slate-300">metros reales</span>
             </div>
         </div>
 
@@ -41,7 +41,7 @@
 
             <div class="p-4 grid grid-cols-2 gap-3 bg-slate-900/50">
                 <button id="btn-record" disabled class="w-full bg-slate-700 text-slate-400 font-bold py-3 px-4 rounded-xl transition">
-                    Selecciona un Objeto
+                    Selecciona Objeto
                 </button>
                 <button id="btn-reset" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-3 px-4 rounded-xl transition border border-slate-700">
                     Reiniciar
@@ -49,23 +49,39 @@
             </div>
         </div>
 
-        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-4 shadow-xl hidden" id="results-panel">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">Reporte Cinemático</h2>
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-6 shadow-xl hidden" id="results-panel">
+            <div class="border-b border-slate-800 pb-2">
+                <h2 class="text-lg font-bold text-emerald-400">Reporte de Laboratorio</h2>
+            </div>
             
             <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    <span class="text-xs text-slate-400 block mb-1">Tiempo de Caída</span>
-                    <span id="res-time" class="text-xl font-bold font-mono text-emerald-400">0.00s</span>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+                    <span class="text-xs text-slate-400 block mb-1">Tiempo Total (t)</span>
+                    <span id="res-time" class="text-2xl font-bold font-mono text-white">0.000s</span>
                 </div>
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    <span class="text-xs text-slate-400 block mb-1">Velocidad Promedio</span>
-                    <span id="res-vel" class="text-xl font-bold font-mono text-blue-400">0.0 m/s</span>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+                    <span class="text-xs text-slate-400 block mb-1">Velocidad Promedio (v)</span>
+                    <span id="res-vel" class="text-2xl font-bold font-mono text-blue-400">0.0 m/s</span>
                 </div>
             </div>
 
-            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
-                <span class="text-xs text-slate-400 block">Simulación de Trayectoria</span>
-                <canvas id="simCanvas" class="w-full h-32 bg-slate-950 border border-slate-800 rounded-lg"></canvas>
+            <div class="bg-blue-100 p-4 rounded-xl border border-slate-700 relative overflow-hidden">
+                <h3 class="text-xs font-bold text-slate-800 mb-2 uppercase">Replay de Caída</h3>
+                <div class="flex justify-center h-48 bg-gradient-to-b from-blue-200 to-green-300 rounded-lg border border-slate-400 relative">
+                    <canvas id="simCanvas" class="w-full h-full"></canvas>
+                    <button id="btn-replay" class="absolute bottom-2 right-2 bg-white text-blue-600 p-2 rounded-full shadow-md hover:bg-slate-100 transition">
+                        ▶ Replay
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                    <canvas id="chartY" class="w-full h-40"></canvas>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                    <canvas id="chartV" class="w-full h-40"></canvas>
+                </div>
             </div>
         </div>
     </main>
@@ -80,6 +96,8 @@
 
         const btnRecord = document.getElementById('btn-record');
         const btnReset = document.getElementById('btn-reset');
+        const btnReplay = document.getElementById('btn-replay');
+        
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
         const resultsPanel = document.getElementById('results-panel');
@@ -91,14 +109,13 @@
         let trackingData = []; 
         let startTime = 0;
         let objectSelected = false;
+        let lastFallData = []; // Para el replay
+        let chartsInstance = []; // Para destruir graficas previas
         
-        // Variables de precisión
-        let targetHue = 0;
-        let targetSat = 0;
-        let targetLight = 0;
-        let lastX = null;
-        let lastY = null;
-        const searchRadius = 80; // Píxeles de proximidad (ignora cosas fuera de este círculo)
+        // Variables de precisión de color
+        let targetHue = 0, targetSat = 0, targetLight = 0;
+        let lastX = null, lastY = null;
+        const searchRadius = 80; 
         const hueTolerance = 25;
 
         async function initCamera() {
@@ -111,8 +128,8 @@
                 video.addEventListener('loadedmetadata', () => {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
-                    simCanvas.width = canvas.width;
-                    simCanvas.height = canvas.height;
+                    simCanvas.width = 300; // Resolución interna del canvas de simulacion
+                    simCanvas.height = 400;
                     video.play();
                     requestAnimationFrame(processFrame);
                 });
@@ -155,40 +172,30 @@
                         const x = pixelIndex % canvas.width;
                         const y = Math.floor(pixelIndex / canvas.width);
 
-                        // MEJORA: Filtro de proximidad. Si está muy lejos del último punto, ignorarlo (evita la mano)
                         if (lastX !== null && lastY !== null) {
                             const dist = Math.hypot(x - lastX, y - lastY);
                             if (dist > searchRadius) continue;
                         }
 
                         const [h, s, l] = rgbToHsl(data[i], data[i+1], data[i+2]);
-
-                        // Filtro de color ajustado
                         let hueDiff = Math.abs(h - targetHue);
                         if (hueDiff > 180) hueDiff = 360 - hueDiff;
 
-                        // También revisamos que la luminosidad y saturación sean parecidas para mayor precisión
                         if (hueDiff < hueTolerance && Math.abs(l - targetLight) < 40) {
-                            sumX += x;
-                            sumY += y;
-                            count++;
+                            sumX += x; sumY += y; count++;
                         }
                     }
 
                     if (count > 10) {
-                        lastX = sumX / count;
-                        lastY = sumY / count;
+                        lastX = sumX / count; lastY = sumY / count;
 
-                        // Dibujar Área de Búsqueda y Objetivo
                         ctx.beginPath();
                         ctx.arc(lastX, lastY, searchRadius, 0, 2 * Math.PI);
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                        ctx.stroke();
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.stroke();
 
                         ctx.beginPath();
                         ctx.arc(lastX, lastY, 10, 0, 2 * Math.PI);
-                        ctx.fillStyle = '#34d399';
-                        ctx.fill();
+                        ctx.fillStyle = '#34d399'; ctx.fill();
 
                         if (isTracking) {
                             const time = (Date.now() - startTime) / 1000;
@@ -200,9 +207,8 @@
             requestAnimationFrame(processFrame);
         }
 
-        // Selección Inteligente tocando la pantalla
         canvas.addEventListener('click', (e) => {
-            if (isTracking) return; // No permitir cambiar color mientras graba
+            if (isTracking) return; 
             
             const rect = canvas.getBoundingClientRect();
             const clickX = Math.floor((e.clientX - rect.left) * (canvas.width / rect.width));
@@ -212,7 +218,7 @@
             const [h, s, l] = rgbToHsl(pixel[0], pixel[1], pixel[2]);
             
             targetHue = h; targetSat = s; targetLight = l;
-            lastX = clickX; lastY = clickY; // Inicializar la proximidad aquí
+            lastX = clickX; lastY = clickY; 
             objectSelected = true;
 
             statusIndicator.classList.replace('bg-yellow-500', 'bg-emerald-500');
@@ -226,15 +232,11 @@
 
         btnRecord.addEventListener('click', () => {
             if (!isTracking) {
-                // Iniciar
-                isTracking = true; 
-                trackingData = []; 
-                startTime = Date.now();
+                isTracking = true; trackingData = []; startTime = Date.now();
                 btnRecord.innerText = "Detener y Calcular";
                 btnRecord.classList.replace('bg-blue-600', 'bg-red-600');
                 resultsPanel.classList.add('hidden');
             } else {
-                // Detener y Procesar Física
                 isTracking = false;
                 btnRecord.innerText = "Grabar Caída";
                 btnRecord.classList.replace('bg-red-600', 'bg-blue-600');
@@ -243,59 +245,198 @@
         });
 
         function calcularFisica() {
-            if (trackingData.length < 2) {
-                alert("No se capturaron suficientes datos. Intenta de nuevo.");
+            if (trackingData.length < 5) {
+                alert("No se capturaron suficientes datos.");
                 return;
             }
 
-            resultsPanel.classList.remove('hidden');
+            // Umbral de Movimiento (limpiando datos basura de inicio y fin)
+            let initialY = trackingData[0].y;
+            let startIndex = 0, endIndex = trackingData.length - 1;
 
-            // 1. Tiempo total de caída
-            const fallTime = trackingData[trackingData.length - 1].t - trackingData[0].t;
-            resTime.innerText = fallTime.toFixed(2) + "s";
+            for (let i = 1; i < trackingData.length; i++) {
+                if (trackingData[i].y > initialY + 5) { startIndex = i; break; }
+            }
+            for (let i = trackingData.length - 1; i > startIndex; i--) {
+                if (Math.abs(trackingData[i].y - trackingData[i-1].y) > 2) { endIndex = i; break; }
+            }
 
-            // 2. Velocidad y Escala
-            // Encontramos el punto más alto y más bajo en píxeles
-            const yValues = trackingData.map(d => d.y);
-            const minY = Math.min(...yValues);
-            const maxY = Math.max(...yValues);
-            const pixelDistance = maxY - minY;
+            const fallData = trackingData.slice(startIndex, endIndex + 1);
+            if (fallData.length < 2) {
+                alert("Caída no detectada correctamente.");
+                return;
+            }
 
+            // Normalizar tiempo a t=0
+            const t0 = fallData[0].t;
+            const processedData = fallData.map(d => ({
+                t: d.t - t0,
+                y: d.y
+            }));
+
+            lastFallData = processedData; // Guardar para replay
+
+            // Cálculos
+            const fallTime = processedData[processedData.length - 1].t;
+            resTime.innerText = fallTime.toFixed(3) + "s";
+
+            const pixelDistance = processedData[processedData.length - 1].y - processedData[0].y;
             const realDistanceMeters = parseFloat(inputDistance.value);
-            
-            // Metros recorridos por cada píxel
             const scaleMetersPerPixel = realDistanceMeters / pixelDistance;
             
-            // v = d / t
-            const velocity = realDistanceMeters / fallTime;
-            resVel.innerText = velocity.toFixed(2) + " m/s";
+            const avgVelocity = realDistanceMeters / fallTime;
+            resVel.innerText = avgVelocity.toFixed(2) + " m/s";
 
-            // 3. Dibujar Simulación
-            simCtx.clearRect(0, 0, simCanvas.width, simCanvas.height);
-            simCtx.beginPath();
-            simCtx.strokeStyle = '#34d399';
-            simCtx.lineWidth = 4;
+            // Preparar arreglos para gráficas
+            const labelsT = [];
+            const dataY = [];
+            const dataV = [];
 
-            simCtx.moveTo(trackingData[0].x, trackingData[0].y);
-            for (let i = 1; i < trackingData.length; i++) {
-                simCtx.lineTo(trackingData[i].x, trackingData[i].y);
+            for (let i = 0; i < processedData.length; i++) {
+                labelsT.push(processedData[i].t.toFixed(2));
+                
+                // Distancia real en metros desde el inicio (eje Y invertido, cayendo hacia abajo es positivo para nosotros)
+                const currentDistMeters = (processedData[i].y - processedData[0].y) * scaleMetersPerPixel;
+                dataY.push(currentDistMeters.toFixed(2));
+
+                // Velocidad instantánea (delta Y / delta T)
+                if (i === 0) {
+                    dataV.push(0);
+                } else {
+                    const dt = processedData[i].t - processedData[i-1].t;
+                    const dyMeters = (processedData[i].y - processedData[i-1].y) * scaleMetersPerPixel;
+                    const vInst = dt > 0 ? (dyMeters / dt) : 0;
+                    dataV.push(vInst.toFixed(2));
+                }
             }
-            simCtx.stroke();
-            
-            // Marcar inicio y fin
-            simCtx.fillStyle = '#60a5fa'; // Azul inicio
-            simCtx.beginPath(); simCtx.arc(trackingData[0].x, trackingData[0].y, 8, 0, Math.PI*2); simCtx.fill();
-            
-            simCtx.fillStyle = '#ef4444'; // Rojo final
-            simCtx.beginPath(); simCtx.arc(trackingData[trackingData.length-1].x, trackingData[trackingData.length-1].y, 8, 0, Math.PI*2); simCtx.fill();
+
+            resultsPanel.classList.remove('hidden');
+            renderCharts(labelsT, dataY, dataV);
+            playSimulation();
         }
 
+        function renderCharts(labels, dataY, dataV) {
+            // Destruir gráficas viejas si existen
+            chartsInstance.forEach(chart => chart.destroy());
+            chartsInstance = [];
+
+            // Config común para estilo oscuro
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.borderColor = '#334155';
+
+            // Gráfica de Posición y(t)
+            const ctxY = document.getElementById('chartY').getContext('2d');
+            chartsInstance.push(new Chart(ctxY, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Posición y(m)',
+                        data: dataY,
+                        borderColor: '#3b82f6', // Blue
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        fill: true, tension: 0.3, pointRadius: 2
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
+            }));
+
+            // Gráfica de Velocidad v(t)
+            const ctxV = document.getElementById('chartV').getContext('2d');
+            chartsInstance.push(new Chart(ctxV, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Velocidad v(m/s)',
+                        data: dataV,
+                        borderColor: '#10b981', // Emerald
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true, tension: 0.4, pointRadius: 2
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
+            }));
+        }
+
+        let animationId;
+        function playSimulation() {
+            if (animationId) cancelAnimationFrame(animationId);
+            if (!lastFallData || lastFallData.length === 0) return;
+
+            const totalTime = lastFallData[lastFallData.length - 1].t;
+            const startY = lastFallData[0].y;
+            const endY = lastFallData[lastFallData.length - 1].y;
+            const rangeY = endY - startY;
+
+            let startTimeAnim = null;
+
+            function drawFrame(timestamp) {
+                if (!startTimeAnim) startTimeAnim = timestamp;
+                const elapsedAnimTime = (timestamp - startTimeAnim) / 1000; // en segundos
+
+                // Limpiar fondo
+                simCtx.clearRect(0, 0, simCanvas.width, simCanvas.height);
+
+                // Dibujar Regla/Escala central
+                simCtx.strokeStyle = '#64748b'; // Slate 500
+                simCtx.lineWidth = 2;
+                simCtx.beginPath();
+                simCtx.moveTo(simCanvas.width / 2 - 30, 20);
+                simCtx.lineTo(simCanvas.width / 2 - 30, simCanvas.height - 20);
+                simCtx.stroke();
+                
+                // Marcas de la regla
+                for(let i=0; i<=5; i++){
+                    let yMark = 20 + (i * ((simCanvas.height - 40) / 5));
+                    simCtx.beginPath();
+                    simCtx.moveTo(simCanvas.width / 2 - 35, yMark);
+                    simCtx.lineTo(simCanvas.width / 2 - 25, yMark);
+                    simCtx.stroke();
+                }
+
+                // Encontrar los datos correspondientes al tiempo actual de la animación
+                let currentFrameData = lastFallData[lastFallData.length - 1]; // Default al final
+                for (let i = 0; i < lastFallData.length; i++) {
+                    if (lastFallData[i].t >= elapsedAnimTime) {
+                        currentFrameData = lastFallData[i];
+                        break;
+                    }
+                }
+
+                // Mapear el Y real al Y del canvas de simulación
+                const progress = (currentFrameData.y - startY) / rangeY;
+                const simY = 20 + (progress * (simCanvas.height - 40));
+
+                // Dibujar la pelota
+                simCtx.fillStyle = '#dc2626'; // Rojo vibrante
+                simCtx.beginPath();
+                simCtx.arc(simCanvas.width / 2 + 10, simY, 15, 0, Math.PI * 2);
+                simCtx.fill();
+                simCtx.strokeStyle = '#991b1b';
+                simCtx.lineWidth = 2;
+                simCtx.stroke();
+
+                // Dibujar cronómetro en pantalla
+                simCtx.fillStyle = '#1e293b';
+                simCtx.font = 'bold 20px monospace';
+                simCtx.fillText(`${Math.min(elapsedAnimTime, totalTime).toFixed(3)}s`, 10, 30);
+
+                if (elapsedAnimTime < totalTime) {
+                    animationId = requestAnimationFrame(drawFrame);
+                }
+            }
+            animationId = requestAnimationFrame(drawFrame);
+        }
+
+        btnReplay.addEventListener('click', () => {
+            playSimulation();
+        });
+
         btnReset.addEventListener('click', () => {
-            trackingData = [];
-            objectSelected = false;
-            lastX = null; lastY = null;
+            trackingData = []; objectSelected = false; lastX = null; lastY = null;
             btnRecord.disabled = true;
-            btnRecord.innerText = "Selecciona un Objeto";
+            btnRecord.innerText = "Selecciona Objeto";
             btnRecord.className = "w-full bg-slate-700 text-slate-400 font-bold py-3 px-4 rounded-xl transition";
             statusIndicator.className = "h-2 w-2 rounded-full bg-yellow-500 animate-pulse";
             statusText.innerText = "Cámara: Esperando Selección";
