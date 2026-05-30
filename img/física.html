@@ -405,7 +405,8 @@ const EXP_ALPHA = 0.4;   // 0 = sin movimiento, 1 = sin suavizado
 
 // FPS
 let fpsLastTime = 0, fpsFrameCount = 0, currentFps = 0;
-let startTime = 0;
+// performance.now() en lugar de Date.now() → microsegundos, sin deriva de reloj
+let startTimestamp = 0;  // timestamp de performance.now() al inicio de grabación
 
 // Ventana de velocidad suavizada (rolling window)
 const VEL_WINDOW = 7;
@@ -544,7 +545,8 @@ function processFrame(timestamp) {
                 ctx.stroke();
 
                 if (isTracking) {
-                    const t = (Date.now() - startTime) / 1000;
+                    // Usamos el timestamp de rAF (performance.now) — alta resolución, sin deriva
+                    const t = (timestamp - startTimestamp) / 1000;
                     rawData.push({ t, x: rawX,    y: rawY    });
                     smoothData.push({ t, x: smoothX, y: smoothY });
                 }
@@ -590,7 +592,7 @@ btnRecord.addEventListener('click', () => {
     if (!isTracking) {
         isTracking = true;
         rawData = []; smoothData = [];
-        startTime = Date.now();
+        startTimestamp = performance.now();  // alta resolución, sin deriva de reloj
         setStatus('● Grabando caída…', 'rec');
         btnRecord.textContent = 'Detener y calcular';
         btnRecord.className   = 'btn btn-stop';
@@ -707,7 +709,13 @@ function computeSmoothedVelocity(data, mPerPx, windowHalf) {
         const hi = Math.min(n - 1, i + windowHalf);
         const dt = data[hi].t - data[lo].t;
         const dy = (data[hi].y - data[lo].y) * mPerPx;
-        vels.push(dt > 0 ? dy / dt : 0);
+        // Si dt===0 (frames idénticos en tiempo), hereda la velocidad anterior
+        // en vez de inyectar un pico de cero que arruinaría la regresión
+        if (dt > 0) {
+            vels.push(dy / dt);
+        } else {
+            vels.push(vels.length > 0 ? vels[vels.length - 1] : 0);
+        }
     }
     return vels;
 }
