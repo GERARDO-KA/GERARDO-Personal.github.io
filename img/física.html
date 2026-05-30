@@ -278,57 +278,35 @@
 <!-- ── 0. Marco Teórico ── -->
 <div class="theory-toggle">
     <button class="theory-btn" id="theory-btn" onclick="toggleTheory()">
-        <span>0 · Marco Teórico — ¿Qué es la Cinemática?</span>
+        <span>0 · Marco Teórico — Cinemática</span>
         <span class="theory-chevron" id="theory-chevron">▼</span>
     </button>
     <div class="theory-body" id="theory-body">
 
         <div class="th-section">
-            <div class="th-title">Definición</div>
+            <div class="th-title">¿Qué es la cinemática?</div>
             <div class="th-text">
-                La <strong style="color:var(--text)">cinemática</strong> es la rama de la mecánica clásica que estudia el movimiento de los cuerpos en el espacio y el tiempo, <em>sin considerar las causas que lo originan</em> (las fuerzas). Su objetivo es describir <em>cómo</em> se mueve un objeto: dónde está, qué tan rápido va y si su velocidad cambia con el tiempo.
+                Rama de la física que describe <em>cómo</em> se mueve un cuerpo — posición, velocidad y aceleración — sin preguntarse por qué. En caída libre, la aceleración es la gravedad: <strong style="color:var(--text)">g = 9.81 m/s²</strong> hacia abajo.
             </div>
         </div>
 
         <div class="th-divider"></div>
 
         <div class="th-section">
-            <div class="th-title">Magnitudes fundamentales</div>
-            <div class="th-text">Las tres magnitudes que esta app mide son:</div>
-            <div class="th-formula">y(t) <span>→ Posición: dónde está el objeto en cada instante t [metros]</span></div>
-            <div class="th-formula">v(t) = Δy / Δt <span>→ Velocidad: qué tan rápido cambia la posición [m/s]</span></div>
-            <div class="th-formula">a = Δv / Δt <span>→ Aceleración: qué tan rápido cambia la velocidad [m/s²]</span></div>
-            <div class="th-text" style="margin-top:8px;">
-                En caída libre, la única aceleración que actúa es la gravedad terrestre, cuyo valor teórico es <strong style="color:var(--text)">g = 9.81 m/s²</strong>, siempre dirigida hacia abajo.
+            <div class="th-title">Magnitudes que mide esta app</div>
+            <div class="th-formula">y(t) <span>→ Posición vertical en el tiempo [m]</span></div>
+            <div class="th-formula">v(t) = Δy / Δt <span>→ Velocidad instantánea [m/s]</span></div>
+            <div class="th-text" style="margin-top:6px;">
+                La gráfica de <strong style="color:var(--accent2)">y(t)</strong> en caída libre es una parábola; la de <strong style="color:var(--accent)">v(t)</strong> es una recta creciente.
             </div>
         </div>
 
         <div class="th-divider"></div>
 
         <div class="th-section">
-            <div class="th-title">Ecuaciones de movimiento uniformemente acelerado</div>
-            <div class="th-text">Cuando la aceleración es constante (como en caída libre ideal), el movimiento queda completamente descrito por:</div>
-            <div class="th-formula">v(t) = v₀ + a·t <span>→ Velocidad en función del tiempo</span></div>
-            <div class="th-formula">y(t) = y₀ + v₀·t + ½·a·t² <span>→ Posición en función del tiempo</span></div>
-            <div class="th-formula">vf² = v₀² + 2·a·Δy <span>→ Sin usar el tiempo</span></div>
-            <div class="th-text" style="margin-top:8px;">
-                La gráfica de <strong style="color:var(--accent2)">y(t)</strong> debe tener forma de parábola (curva cuadrática). La gráfica de <strong style="color:var(--accent)">v(t)</strong> debe ser una línea recta con pendiente igual a la aceleración.
-            </div>
-        </div>
-
-        <div class="th-divider"></div>
-
-        <div class="th-section">
-            <div class="th-title">Cómo lo aplica esta app</div>
+            <div class="th-title">Cómo funciona la app</div>
             <div class="th-text">
-                La app captura video en tiempo real y rastrea un objeto por su color usando el espacio de color <strong style="color:var(--text)">HSL</strong> (Tono, Saturación, Luminosidad). En cada frame de video registra la posición vertical del objeto en píxeles junto con su timestamp de alta resolución (<code style="color:var(--accent2);font-size:12px">performance.now()</code>).
-            </div>
-            <div class="th-text" style="margin-top:8px;">
-                Esas posiciones en píxeles se convierten a metros usando la <strong style="color:var(--text)">calibración</strong> que tú defines: si conoces la distancia real que recorre el objeto, la app puede calcular cuántos metros equivale cada píxel en tu encuadre. Con esa escala calcula:
-            </div>
-            <div class="th-formula">mPerPx = distancia_real [m] / distancia_píxeles [px]</div>
-            <div class="th-text" style="margin-top:8px;">
-                Para reducir el ruido propio de la visión artificial, las posiciones se suavizan con un <strong style="color:var(--text)">filtro exponencial</strong>, y las velocidades se calculan con una <strong style="color:var(--text)">ventana deslizante</strong> de 7 frames en lugar de derivadas directas entre frames consecutivos, que son muy sensibles al ruido.
+                Rastrea el objeto frame a frame por su color (espacio HSL), convierte píxeles a metros con tu calibración y suaviza la señal para reducir ruido de cámara. Con eso calcula posición, velocidad inicial, final y promedio del movimiento grabado.
             </div>
         </div>
 
@@ -481,7 +459,10 @@ const LIGHT_TOL      = 35;
 
 // Suavizado exponencial para la posición en tiempo real
 let smoothX = null, smoothY = null;
-const EXP_ALPHA = 0.4;   // 0 = sin movimiento, 1 = sin suavizado
+const EXP_ALPHA = 0.4;
+
+// Contador de frames sin detectar objeto (para radio progresivo)
+let lostFrames = 0;
 
 // FPS
 let fpsLastTime = 0, fpsFrameCount = 0, currentFps = 0;
@@ -568,16 +549,19 @@ function processFrame(timestamp) {
             const data  = frame.data;
             let sumX = 0, sumY = 0, count = 0;
 
-            // Sampleo 1/8 con restricción de radio
+            // Si llevamos varios frames sin encontrar el objeto, ampliamos el radio
+            const searchR = (lostFrames > 8)
+                ? Math.min(SEARCH_RADIUS * 3, canvas.width * 0.4)  // búsqueda amplia
+                : SEARCH_RADIUS;
+
             for (let i = 0; i < data.length; i += 32) {
                 const pixelIdx = i / 4;
                 const px = pixelIdx % canvas.width;
                 const py = Math.floor(pixelIdx / canvas.width);
 
-                // Restricción de radio alrededor de la última posición suavizada
                 if (smoothX !== null) {
                     const dist = Math.hypot(px - smoothX, py - smoothY);
-                    if (dist > SEARCH_RADIUS) continue;
+                    if (dist > searchR) continue;
                 }
 
                 const [h, s, l] = rgbToHsl(data[i], data[i+1], data[i+2]);
@@ -590,10 +574,11 @@ function processFrame(timestamp) {
             }
 
             if (count > 5) {
+                lostFrames = 0;
                 const rawX = sumX / count;
                 const rawY = sumY / count;
 
-                // Suavizado exponencial de la posición (FIX 1)
+                // Suavizado exponencial de la posición
                 if (smoothX === null) {
                     smoothX = rawX; smoothY = rawY;
                 } else {
@@ -601,17 +586,37 @@ function processFrame(timestamp) {
                     smoothY = EXP_ALPHA * rawY + (1 - EXP_ALPHA) * smoothY;
                 }
 
-                // Dibujar indicadores
-                ctx.beginPath();
-                ctx.arc(smoothX, smoothY, SEARCH_RADIUS, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
+                if (isTracking) {
+                    const t = (timestamp - startTimestamp) / 1000;
+                    rawData.push({ t, x: rawX,    y: rawY    });
+                    smoothData.push({ t, x: smoothX, y: smoothY });
+                }
+            } else {
+                lostFrames++;
+            }
 
+            // ── Siempre dibujar el indicador si hay posición conocida ──
+            if (smoothX !== null) {
+                const isLost   = lostFrames > 4;
+                const dotColor = isLost ? '#f59e0b' : '#00e5b4';   // ámbar = buscando, verde = encontrado
+                const ringR    = isLost ? Math.min(SEARCH_RADIUS * 2, canvas.width * 0.35) : SEARCH_RADIUS;
+
+                // Anillo de búsqueda
+                ctx.beginPath();
+                ctx.arc(smoothX, smoothY, ringR, 0, Math.PI * 2);
+                ctx.strokeStyle = isLost ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.12)';
+                ctx.lineWidth = isLost ? 2 : 1;
+                ctx.setLineDash(isLost ? [6, 4] : []);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Punto central
                 ctx.beginPath();
                 ctx.arc(smoothX, smoothY, 11, 0, Math.PI * 2);
-                ctx.fillStyle = '#00e5b4';
+                ctx.fillStyle = dotColor;
+                ctx.globalAlpha = isLost ? 0.55 : 1;
                 ctx.fill();
+                ctx.globalAlpha = 1;
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
@@ -623,13 +628,6 @@ function processFrame(timestamp) {
                 ctx.moveTo(smoothX-5, smoothY); ctx.lineTo(smoothX+5, smoothY);
                 ctx.moveTo(smoothX, smoothY-5); ctx.lineTo(smoothX, smoothY+5);
                 ctx.stroke();
-
-                if (isTracking) {
-                    // Usamos el timestamp de rAF (performance.now) — alta resolución, sin deriva
-                    const t = (timestamp - startTimestamp) / 1000;
-                    rawData.push({ t, x: rawX,    y: rawY    });
-                    smoothData.push({ t, x: smoothX, y: smoothY });
-                }
             }
         }
     }
@@ -655,6 +653,7 @@ canvas.addEventListener('click', (e) => {
     targetH = sumH/n; targetS = sumS/n; targetL = sumL/n;
 
     smoothX = clickX; smoothY = clickY;
+    lostFrames = 0;
     objectSelected = true;
 
     setStatus('Objeto fijado · Presiona Grabar', 'ready');
@@ -996,7 +995,7 @@ btnReplay.addEventListener('click', playSimulation);
 btnReset.addEventListener('click', () => {
     rawData = []; smoothData = []; processedData = [];
     objectSelected = false; isTracking = false;
-    smoothX = null; smoothY = null;
+    smoothX = null; smoothY = null; lostFrames = 0;
 
     btnRecord.disabled    = true;
     btnRecord.textContent = 'Selecciona objeto';
