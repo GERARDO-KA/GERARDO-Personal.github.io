@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quinto Bachillerato, Ciencias y Letras Con Orientación En Computación | Liceo ICC</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --verde:#3aa927;
+    --verde-claro:#55d43d;
+    --verde-oscuro:#003e2f;
+    --negro:#050505;
+    --negro2:#0c0c0c;
+    --negro3:#121212;
+    --gris:#999;
+    --blanco:#fff;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+    font-family:'Montserrat',sans-serif;
+    background:var(--negro);
+    color:white;
+    line-height:1.6;
+    overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit}
+
+/* ================= HEADER ================= */
+header{
+    position:fixed;
+    top:0;left:0;width:100%;
+    z-index:1000;
+    background:rgba(0,0,0,.86);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(58,169,39,.15);
+    transition:.3s;
+}
+header.scrolled{
+    background:rgba(0,0,0,.97);
+    box-shadow:0 5px 30px rgba(0,0,0,.5);
+}
+.navbar{
+    max-width:1250px;
+    min-height:80px;
+    padding:10px 25px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+.logo,
+.logo-footer{
+    width:80px;
+    height:100px;
+    object-fit:contain;
+    display:block;
+    border:none;
+    border-radius:0;
+    box-shadow:none;
+     box-shadow: rgba(0,0,0,.86);
+}
+
+.logo{
+    margin-left:20px;
+    cursor:pointer;
+}
+
+.logo-footer{
+    width:80px;
+    height:100px;
+}
+.menu{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.menu a{
+    position:relative;
+    padding:10px 15px;
+    color:#eee;
+    font-size:14px;
+    font-weight:600;
+    transition:.3s;
+}
+.menu a::after{
+    content:"";
+    position:absolute;
+    bottom:2px;left:50%;
+    width:0;height:2px;
+    background:var(--verde);
+    transform:translateX(-50%);
+    transition:.3s;
+}
+.menu a:hover,.menu a.active{color:var(--verde)}
+.menu a:hover::after,.menu a.active::after{width:70%}
+.menu-toggle{
+    display:none;
+    width:45px;height:45px;
+    border:1px solid #333;
+    border-radius:10px;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    font-size:20px;
+}
+
+/* ================= HERO + CARRUSEL ================= */
+.hero{
+    min-height:100vh;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    overflow:hidden;
+}
+.hero-carousel{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    z-index:0;
+    transform:scale(1.05);
+}
+.hero-slide{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity 1s ease;
+}
+.hero-slide.active{
+    opacity:1;
+    visibility:visible;
+}
+.hero-slide img,.hero-slide video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+}
+.hero-carousel::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    background:linear-gradient(180deg,rgba(0,0,0,.78),rgba(0,0,0,.48),rgba(0,0,0,.92));
+}
+.carousel-btn{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:48px;height:48px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.35);
+    background:rgba(0,0,0,.45);
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index:5;
+    transition:.3s;
+}
+.carousel-btn:hover{
+    background:var(--verde);
+    border-color:var(--verde);
+    transform:translateY(-50%) scale(1.08);
+}
+.carousel-prev{left:25px}
+.carousel-next{right:25px}
+.carousel-indicators{
+    position:absolute;
+    bottom:55px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:8px;
+    z-index:5;
+}
+.carousel-indicator{
+    width:10px;height:10px;
+    border-radius:50%;
+    border:1px solid white;
+    background:transparent;
+    cursor:pointer;
+    transition:.3s;
+}
+.carousel-indicator.active{
+    width:28px;
+    border-radius:10px;
+    background:var(--verde);
+    border-color:var(--verde);
+}
+.hero-content{
+    position:relative;
+    z-index:10;
+    max-width:950px;
+    padding:130px 25px 70px;
+}
+.badge{
+    display:inline-block;
+    padding:8px 18px;
+    border:1px solid rgba(5, 5, 5, 0.7);
+    border-radius:30px;
+    background:rgba(0,0,0,.4);
+    color:#a9f69a;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:1px;
+    margin-bottom:25px;
+}
+.hero h1{
+    font-size:clamp(2.3rem,6vw,5rem);
+    line-height:1.08;
+    font-weight:800;
+    margin-bottom:25px;
+    text-shadow:0 5px 30px #000;
+}
+.hero h1 span{color:var(--verde)}
+.hero p{
+    max-width:750px;
+    margin:auto;
+    color:#ddd;
+    font-size:17px;
+}
+.hero-buttons{
+    margin-top:35px;
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+.btn{
+    padding:14px 25px;
+    border-radius:30px;
+    border:none;
+    cursor:pointer;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    transition:.3s;
+}
+.btn-primary{background:var(--verde);color:white}
+.btn-primary:hover{
+    background:var(--verde-claro);
+    transform:translateY(-4px);
+    box-shadow:0 10px 30px rgba(58,169,39,.3);
+}
+.btn-outline{
+    background:rgba(0,0,0,.4);
+    color:white;
+    border:1px solid #555;
+}
+.btn-outline:hover{
+    border-color:var(--verde);
+    color:var(--verde);
+    transform:translateY(-4px);
+}
+.scroll{
+    position:absolute;
+    bottom:25px;
+    left:50%;
+    transform:translateX(-50%);
+    color:#aaa;
+    font-size:11px;
+    z-index:10;
+}
+.scroll i{
+    display:block;
+    margin-top:8px;
+    animation:rebote 1.5s infinite;
+}
+@keyframes rebote{50%{transform:translateY(8px)}}
+
+/* ================= SECCIONES ================= */
+.linea{height:5px;display:flex}
+.linea1{width:65%;background:var(--verde-oscuro)}
+.linea2{width:25%;background:var(--verde)}
+.linea3{width:10%;background:white}
+.seccion{
+    max-width:1250px;
+    margin:auto;
+    padding:90px 25px;
+}
+.titulo{text-align:center;margin-bottom:55px}
+.titulo small{color:var(--verde);font-weight:700;letter-spacing:3px}
+.titulo h2{font-size:clamp(2rem,4vw,3rem);margin:10px 0}
+.titulo p{max-width:700px;margin:auto;color:#999}
+
+/* ================= PRESENTACION ================= */
+.presentacion{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:60px;
+    align-items:center;
+}
+.presentacion-imagen{
+    min-height:430px;
+    border-radius:25px;
+    background-image:linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.4)),url("./recursos/2.jpeg");
+    background-size:cover;
+    background-position:center;
+    box-shadow:0 20px 60px rgba(58,169,39,.18);
+}
+.presentacion-texto small{color:var(--verde);font-weight:700;letter-spacing:2px}
+.presentacion-texto h2{font-size:36px;line-height:1.2;margin:12px 0 20px}
+.presentacion-texto h2 span{color:var(--verde)}
+.presentacion-texto p{color:#aaa;margin-bottom:17px}
+.lista{list-style:none}
+.lista li{color:#ddd;margin:12px 0}
+.lista i{color:var(--verde);margin-right:10px}
+
+/* ================= ESTADISTICAS ================= */
+.estadisticas{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin-top:70px;
+}
+.estadistica{
+    background:#101010;
+    border:1px solid #222;
+    border-radius:18px;
+    padding:30px 15px;
+    text-align:center;
+    transition:.3s;
+}
+.estadistica:hover{border-color:var(--verde);transform:translateY(-6px)}
+.estadistica i{color:var(--verde);font-size:25px}
+.numero{font-size:35px;font-weight:800;margin-top:5px}
+.estadistica p{color:#888;font-size:12px}
+
+/* ================= AREAS ================= */
+.areas{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:22px;
+}
+.area{
+    min-height:280px;
+    padding:30px;
+    border-radius:20px;
+    background:linear-gradient(145deg,#141414,#090909);
+    border:1px solid #222;
+    cursor:pointer;
+    transition:.4s;
+}
+.area:hover{
+    transform:translateY(-8px);
+    border-color:var(--verde);
+    box-shadow:0 20px 50px rgba(58,169,39,.12);
+}
+.area-icon{
+    width:60px;height:60px;
+    border-radius:16px;
+    background:rgba(58,169,39,.12);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--verde);
+    font-size:25px;
+    margin-bottom:20px;
+}
+.area h3{font-size:21px;margin-bottom:12px}
+.area p{color:#999;font-size:14px}
+.area .ver{display:inline-block;margin-top:18px;color:var(--verde);font-size:12px;font-weight:700}
+
+/* ================= SOPORTE ================= */
+.soporte{
+    background:linear-gradient(135deg,#003e2f,#070707 60%);
+    border-radius:25px;
+    padding:65px 50px;
+    border:1px solid rgba(58,169,39,.3);
+}
+.soporte-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:50px;
+    align-items:center;
+}
+.soporte h2{font-size:36px;margin-bottom:18px}
+.soporte h2 span{color:var(--verde)}
+.soporte p{color:#bbb}
+.tareas{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:13px;
+    margin-top:25px;
+}
+.tarea{
+    padding:15px;
+    border-radius:12px;
+    background:rgba(0,0,0,.3);
+    border:1px solid rgba(255,255,255,.08);
+    color:#ddd;
+    font-size:13px;
+}
+.tarea i{color:var(--verde);margin-right:8px}
+
+/* ================= AREAS DE SERVICIOS ================= */
+.areas-servicios{display:flex;flex-direction:column;gap:18px;width:100%}
+.area-servicio{display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:25px;width:100%;min-height:170px;padding:28px 35px;border-radius:20px;background:linear-gradient(145deg,#141414,#090909);border:1px solid #222;transition:.4s;cursor:pointer}
+.area-servicio:hover{transform:translateX(8px);border-color:var(--verde);box-shadow:0 20px 50px rgba(58,169,39,.12)}
+.area-servicio .area-icon{width:75px;height:75px;margin:0;border-radius:18px;font-size:30px}
+.area-servicio-info h3{font-size:25px;margin-bottom:7px}
+.area-servicio-info p{color:#999;font-size:14px;max-width:850px}
+.area-servicio .ver{color:var(--verde);font-size:12px;font-weight:700;white-space:nowrap}
+@media(max-width:700px){.area-servicio{grid-template-columns:65px 1fr;gap:18px;padding:22px}.area-servicio .area-icon{width:60px;height:60px;font-size:24px}.area-servicio .ver{grid-column:2}.area-servicio-info h3{font-size:21px}}
+
+/* ================= PROGRAMACION / REDES ================= */
+.dos-columnas{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+.bloque{
+    padding:40px;
+    background:#101010;
+    border-radius:20px;
+    border:1px solid #222;
+}
+.bloque h3{font-size:25px;margin-bottom:15px}
+.bloque h3 i{color:var(--verde);margin-right:10px}
+.bloque p{color:#999;margin-bottom:20px}
+.tags{display:flex;flex-wrap:wrap;gap:10px}
+.tag{
+    padding:8px 13px;
+    border-radius:20px;
+    background:rgba(58,169,39,.1);
+    color:#9bea8b;
+    font-size:12px;
+}
+
+/* ================= PERFIL ================= */
+.perfil{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+.perfil-item{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:20px;
+    background:#101010;
+    border:1px solid #222;
+    border-radius:15px;
+}
+.perfil-item i{color:var(--verde);font-size:22px}
+.perfil-item span{color:#ccc}
+
+/* ================= PROFESIONAL ================= */
+.profesional{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+}
+.profesional-card{
+    padding:30px;
+    border-radius:18px;
+    background:#111;
+    border:1px solid #222;
+    transition:.3s;
+}
+.profesional-card:hover{transform:translateY(-7px);border-color:var(--verde)}
+.profesional-card i{font-size:30px;color:var(--verde);margin-bottom:15px}
+.profesional-card h3{margin-bottom:10px}
+.profesional-card p{color:#888;font-size:13px}
+
+/* ================= CTA ================= */
+.cta{
+    max-width:1100px;
+    margin:30px auto 90px;
+    padding:70px 30px;
+    border-radius:25px;
+    text-align:center;
+    background:linear-gradient(120deg,#003e2f,#101010);
+    border:1px solid rgba(58,169,39,.3);
+}
+.cta h2{font-size:35px;margin-bottom:15px}
+.cta p{color:#bbb;max-width:700px;margin:auto auto 25px}
+
+/* ================= FOOTER ================= */
+footer{background:#090909;border-top:1px solid #222}
+.footer-container{
+    max-width:1200px;
+    margin:auto;
+    padding:70px 25px 40px;
+    display:grid;
+    grid-template-columns:1.2fr 1fr 1.3fr;
+    gap:50px;
+}
+.footer-logo p{color:var(--verde);font-weight:700;margin-top:10px}
+footer h3{color:var(--verde);margin-bottom:20px}
+.footer-links ul{list-style:none}
+.footer-links li{margin:10px 0}
+.footer-links a{color:#999;transition:.3s}
+.footer-links a:hover{color:var(--verde);padding-left:5px}
+.contact p{color:#999;margin:10px 0;font-size:14px}
+.social{display:flex;gap:12px;margin-top:20px}
+.social a{
+    width:42px;height:42px;
+    border-radius:50%;
+    background:#181818;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    transition:.3s;
+}
+.social a:hover{background:var(--verde);transform:translateY(-4px)}
+.footer-bottom{
+    border-top:1px solid #222;
+    padding:20px;
+    text-align:center;
+    color:#666;
+    font-size:12px;
+}
+
+/* ================= ARRIBA ================= */
+#arriba{
+    position:fixed;
+    right:25px;
+    bottom:25px;
+    width:48px;height:48px;
+    border-radius:50%;
+    border:none;
+    background:var(--verde);
+    color:white;
+    cursor:pointer;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    opacity:0;
+    visibility:hidden;
+    transition:.3s;
+    z-index:900;
+}
+#arriba.mostrar{opacity:1;visibility:visible}
+#arriba:hover{transform:translateY(-5px)}
+
+/* ================= MODAL ================= */
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.86);
+    backdrop-filter:blur(8px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:5000;
+    opacity:0;
+    visibility:hidden;
+    transition:.3s;
+}
+.modal.mostrar{opacity:1;visibility:visible}
+.modal-box{
+    width:min(700px,100%);
+    background:#111;
+    border:1px solid #333;
+    border-radius:20px;
+    padding:35px;
+    position:relative;
+    transform:translateY(30px);
+    transition:.3s;
+}
+.modal.mostrar .modal-box{transform:translateY(0)}
+.cerrar{
+    position:absolute;
+    top:15px;right:20px;
+    background:none;
+    border:none;
+    color:#aaa;
+    font-size:25px;
+    cursor:pointer;
+}
+.cerrar:hover{color:white}
+.modal-box h2{color:var(--verde);margin-bottom:15px}
+.modal-box p{color:#aaa}
+
+/* ================= REVEAL ================= */
+.reveal{
+    opacity:0;
+    transform:translateY(40px);
+    transition:opacity .8s ease,transform .8s ease;
+}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ================= RESPONSIVE ================= */
+@media(max-width:1000px){
+    .areas{grid-template-columns:repeat(2,1fr)}
+    .hardware{grid-template-columns:repeat(2,1fr)}
+    .estadisticas{grid-template-columns:repeat(2,1fr)}
+    .presentacion{grid-template-columns:1fr}
+    .profesional{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+    .menu-toggle{display:flex}
+    .menu{
+        position:absolute;
+        top:70px;left:0;width:100%;
+        background:#050505;
+        flex-direction:column;
+        align-items:stretch;
+        padding:15px 20px;
+        opacity:0;
+        visibility:hidden;
+        transform:translateY(-20px);
+        transition:.3s;
+    }
+    .menu.show{opacity:1;visibility:visible;transform:translateY(0)}
+    .menu a{text-align:center;padding:14px}
+    .hero h1{font-size:2.4rem}
+    .hero p{font-size:14px}
+    .areas,.hardware,.dos-columnas,.perfil,.profesional{grid-template-columns:1fr}
+    .estadisticas{grid-template-columns:1fr 1fr}
+    .footer-container{grid-template-columns:1fr;text-align:center}
+    .social{justify-content:center}
+    .carousel-btn{width:40px;height:40px}
+    .carousel-prev{left:12px}
+    .carousel-next{right:12px}
+    .carousel-indicators{bottom:65px}
+}
+@media(max-width:420px){
+    .estadisticas{grid-template-columns:1fr}
+    .hero-buttons{flex-direction:column}
+    .btn{justify-content:center}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header id="header">
+<nav class="navbar">
+    <a href="#inicio">
+        <img src="./recursos/LOGO COLORES.png" class="logo" alt="Liceo ICC">
+    </a>
+
+    <div class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="menu" id="menu">
+        <a href="#inicio" class="active">INICIO</a>
+        <a href="#carrera">CARRERA</a>
+       
+        <a href="#areas">ÁREAS</a>
+        <a href="#perfil">PERFIL</a>
+        <a href="#contacto">CONTACTO</a>
+    </div>
+</nav>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="inicio">
+
+    <div class="hero-carousel" id="heroCarousel">
+
+        <!-- VIDEO -->
+        <div class="hero-slide active">
+            <video id="heroVideo" autoplay muted playsinline preload="auto">
+                <source src="./recursos/video.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <!-- IMAGEN 1 -->
+        <div class="hero-slide">
+            <img src="./recursos/1.jpeg" alt="Liceo ICC Computación">
+        </div>
+
+        <!-- IMAGEN 2 -->
+        <div class="hero-slide">
+            <img src="./recursos/2.jpeg" alt="Estudiantes de Computación">
+        </div>
+
+        
+
+        <button class="carousel-btn carousel-prev" id="carouselPrev" aria-label="Anterior">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <button class="carousel-btn carousel-next" id="carouselNext" aria-label="Siguiente">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <div class="carousel-indicators">
+            <button class="carousel-indicator active" data-slide="0"></button>
+            <button class="carousel-indicator" data-slide="1"></button>
+            <button class="carousel-indicator" data-slide="2"></button>
+            <button class="carousel-indicator" data-slide="3"></button>
+        </div>
+    </div>
+
+    <div class="hero-content">
+        <div class="badge">
+           
+            
+        </div>
+
+        <h1>
+            Quinto Bachillerato en
+            <span>Ciencias y Letras</span>
+            con Orientación en Computación
+        </h1>
+
+        <p>
+            Prepárate para el mundo tecnológico desarrollando
+            conocimientos en computación, soporte técnico,
+            hardware, software, redes y programación.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="#carrera" class="btn btn-primary">
+                <i class="fas fa-graduation-cap"></i>
+                Conocer la carrera
+            </a>
+
+            <button class="btn btn-outline" id="infoBtn">
+                <i class="fas fa-circle-info"></i>
+                ¿Qué aprenderas?
+            </button>
+        </div>
+    </div>
+
+    <div class="scroll">
+       
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<div class="linea">
+    <div class="linea1"></div>
+    <div class="linea2"></div>
+    <div class="linea3"></div>
+</div>
+
+<!-- ================= CARRERA ================= -->
+<section class="seccion reveal" id="carrera">
+    <div class="presentacion">
+        <div class="presentacion-imagen"></div>
+
+        <div class="presentacion-texto">
+            <small>QUINTO BACHILLERATO</small>
+
+            <h2>
+                Ciencias y Letras
+                <span>con Orientación en Computación</span>
+            </h2>
+
+            <p>
+                Esta carrera proporciona una formación académica y tecnológica
+                orientada al desarrollo de habilidades para utilizar, mantener
+                y solucionar problemas relacionados con equipos y sistemas informáticos.
+            </p>
+
+            <p>
+                El estudiante desarrolla conocimientos de hardware, software,
+                soporte técnico, redes, programación y herramientas digitales
+                que pueden ser utilizados tanto en el ámbito académico como profesional.
+            </p>
+
+            <ul class="lista">
+                <li><i class="fas fa-check-circle"></i>Formación en tecnología e informática</li>
+                <li><i class="fas fa-check-circle"></i>Resolución de problemas técnicos</li>
+                <li><i class="fas fa-check-circle"></i>Conocimientos de hardware y software</li>
+                <li><i class="fas fa-check-circle"></i>Fundamentos de redes y programación</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="estadisticas">
+        <div class="estadistica">
+            <i class="fas fa-computer"></i>
+            <div class="numero" data-target="5">0</div>
+            <p>Áreas principales</p>
+        </div>
+
+        <div class="estadistica">
+            <i class="fas fa-screwdriver-wrench"></i>
+            <div class="numero" data-target="100">0%</div>
+            <p>Enfoque práctico</p>
+        </div>
+
+        <div class="estadistica">
+            <i class="fas fa-network-wired"></i>
+            <div class="numero" data-target="100">0%</div>
+            <p>Tecnología</p>
+        </div>
+
+        <div class="estadistica">
+            <i class="fas fa-code"></i>
+            <div class="numero" data-target="100">0</div>
+            <p>Desarrollo lógico</p>
+        </div>
+    </div>
+</section>
+
+<!-- ================= AREAS DE SERVICIOS ================= -->
+<section class="seccion reveal" id="areas">
+    <div class="titulo">
+        <small>ÁREA DE SERVICIO</small>
+        <h2>ÁREA DE SERVICIO</h2>
+        <p>Conoce nuestras áreas de servicio y explora la información de cada curso.</p>
+    </div>
+
+    <div class="areas-servicios">
+        <a class="area-servicio" href="./links/desarrollo.html">
+            <div class="area-icon"><i class="fas fa-laptop-code"></i></div>
+            <div class="area-servicio-info"><h3>Desarrollo</h3><p>Aprende a crear soluciones digitales, sitios web y proyectos tecnológicos.</p></div>
+            <span class="ver">EXPLORAR ÁREA →</span>
+        </a>
+        <a class="area-servicio" href="./links/PROGRA.HTML">
+            <div class="area-icon"><i class="fas fa-code"></i></div>
+            <div class="area-servicio-info"><h3>Programación</h3><p>Desarrolla pensamiento lógico, algoritmos y soluciones mediante código.</p></div>
+            <span class="ver">EXPLORAR ÁREA →</span>
+        </a>
+        <a class="area-servicio" href="./links/Soporte Tecnico (1).html">
+            <div class="area-icon"><i class="fas fa-headset"></i></div>
+            <div class="area-servicio-info"><h3>Soporte Técnico</h3><p>Diagnóstico, mantenimiento y solución de problemas en equipos informáticos.</p></div>
+            <span class="ver">EXPLORAR ÁREA →</span>
+        </a>
+        <a class="area-servicio" href="./links/Base-de-datos.html">
+            <div class="area-icon"><i class="fas fa-database"></i></div>
+            <div class="area-servicio-info"><h3>Base de Datos</h3><p>Conoce cómo organizar, almacenar, consultar y administrar información.</p></div>
+            <span class="ver">EXPLORAR ÁREA →</span>
+        </a>
+        <a class="area-servicio" href="./links/Electronica.html">
+            <div class="area-icon"><i class="fas fa-microchip"></i></div>
+            <div class="area-servicio-info"><h3>Electrónica</h3><p>Conoce componentes y principios básicos aplicados a sistemas electrónicos.</p></div>
+            <span class="ver">EXPLORAR ÁREA →</span>
+        </a>
+        <a class="area-servicio" href="./links/Redes-y-seguridad.html">
+            <div class="area-icon"><i class="fas fa-network-wired"></i></div>
+            <div class="area-servicio-info"><h3>Redes y Seguridad</h3><p>Aprende conectividad, dispositivos, cableado y fundamentos de redes.</p></div>
+            <span class="ver">EXPLORAR ÁREA →</span>
+        </a>
+       
+    </div>
+</section>
+
+<!-- ================= PROGRAMACION Y REDES ================= -->
+<section class="seccion reveal">
+    <div class="dos-columnas">
+        <div class="bloque">
+            <h3><i class="fas fa-code"></i>Programación</h3>
+            <p>
+                La programación ayuda a desarrollar el pensamiento lógico y permite
+                crear soluciones mediante código.
+            </p>
+            <div class="tags">
+                <span class="tag">Algoritmos</span>
+                <span class="tag">Lógica</span>
+                <span class="tag">HTML</span>
+                <span class="tag">CSS</span>
+                <span class="tag">JavaScript</span>
+                <span class="tag">Bases de datos</span>
+            </div>
+        </div>
+
+        <div class="bloque">
+            <h3><i class="fas fa-network-wired"></i>Redes</h3>
+            <p>
+                Conocerás cómo se comunican los dispositivos y los conceptos básicos
+                necesarios para configurar y diagnosticar una red.
+            </p>
+            <div class="tags">
+                <span class="tag">IP</span>
+                <span class="tag">Router</span>
+                <span class="tag">Switch</span>
+                <span class="tag">Cableado</span>
+                <span class="tag">Wi-Fi</span>
+                <span class="tag">Conectividad</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= PERFIL ================= -->
+<section class="seccion reveal" id="perfil">
+    <div class="titulo">
+        <small>PERFIL DEL ESTUDIANTE</small>
+        <h2>Habilidades que desarrollarás</h2>
+        <p>La carrera busca desarrollar conocimientos técnicos junto con habilidades personales.</p>
+    </div>
+
+    <div class="perfil">
+        <div class="perfil-item"><i class="fas fa-lightbulb"></i><span>Pensamiento lógico</span></div>
+        <div class="perfil-item"><i class="fas fa-puzzle-piece"></i><span>Resolución de problemas</span></div>
+        <div class="perfil-item"><i class="fas fa-users"></i><span>Trabajo en equipo</span></div>
+        <div class="perfil-item"><i class="fas fa-comments"></i><span>Comunicación</span></div>
+        <div class="perfil-item"><i class="fas fa-screwdriver-wrench"></i><span>Habilidades técnicas</span></div>
+        <div class="perfil-item"><i class="fas fa-shield-halved"></i><span>Responsabilidad tecnológica</span></div>
+    </div>
+</section>
+
+<!-- ================= CAMPO PROFESIONAL ================= -->
+<section class="seccion reveal">
+    <div class="titulo">
+        <small>PROYECCIÓN</small>
+        <h2>¿Dónde puedes desarrollarte?</h2>
+        <p>
+            La formación en computación permite continuar estudios y desarrollar
+            diferentes habilidades tecnológicas.
+        </p>
+    </div>
+
+    <div class="profesional">
+        <div class="profesional-card">
+            <i class="fas fa-headset"></i>
+            <h3>Soporte técnico</h3>
+            <p>Diagnóstico y solución de problemas relacionados con equipos y programas.</p>
+        </div>
+
+        <div class="profesional-card">
+            <i class="fas fa-computer"></i>
+            <h3>Mantenimiento</h3>
+            <p>Mantenimiento preventivo y correctivo de equipos informáticos.</p>
+        </div>
+
+        <div class="profesional-card">
+            <i class="fas fa-network-wired"></i>
+            <h3>Redes</h3>
+            <p>Apoyo en configuración y mantenimiento de redes informáticas.</p>
+        </div>
+
+        <div class="profesional-card">
+            <i class="fas fa-code"></i>
+            <h3>Desarrollo web</h3>
+            <p>Aplicación de conocimientos básicos de programación y desarrollo web.</p>
+        </div>
+
+        <div class="profesional-card">
+            <i class="fas fa-database"></i>
+            <h3>Sistemas</h3>
+            <p>Continuar formación en sistemas, informática y tecnologías relacionadas.</p>
+        </div>
+
+        <div class="profesional-card">
+            <i class="fas fa-graduation-cap"></i>
+            <h3>Educación superior</h3>
+            <p>Continuar estudios universitarios relacionados con tecnología e informática.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="cta reveal">
+    <h2>Tu futuro también puede estar en la tecnología</h2>
+    <p>
+        Desarrolla conocimientos, aprende a resolver problemas y prepárate
+        para enfrentar los desafíos del mundo tecnológico.
+    </p>
+
+    <button class="btn btn-primary" id="contactoBtn">
+        <i class="fas fa-envelope"></i>
+        Más información
+    </button>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer id="contacto">
+    <div class="footer-container">
+
+        <div class="footer-logo">
+            <img src="./recursos/LOGO COLORES.png" alt="Logo Liceo ICC" class="logo-footer">
+            <p>Liceo ICC</p>
+            <span style="color:#777;font-size:13px;">Formación académica y tecnológica.</span>
+        </div>
+
+        <div class="footer-links">
+            <h3>Enlaces rápidos</h3>
+            <ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#carrera">Carrera</a></li>
+                <li><a href="#soporte">Soporte Técnico</a></li>
+                <li><a href="#areas">Áreas</a></li>
+                <li><a href="#perfil">Perfil</a></li>
+            </ul>
+        </div>
+
+        <div class="contact">
+            <h3>Contacto</h3>
+
+            <p><i class="fas fa-location-dot"></i> 4 Avenida 5-80, Chimaltenango</p>
+            <p><i class="fas fa-phone"></i> +502 7839 4756</p>
+            <p><i class="fas fa-envelope"></i> infoliceoicc@gmail.com</p>
+
+            <div class="social">
+                <a href="https://www.facebook.com/share/1DHp2bt4QQ/" target="_blank">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/liceoicc/" target="_blank">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        © 2026 Liceo ICC | Todos los derechos reservados.
+    </div>
+</footer>
+
+<!-- ================= BOTON ARRIBA ================= -->
+<button id="arriba">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- ================= MODAL ================= -->
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <button class="cerrar" id="cerrar">
+            <i class="fas fa-xmark"></i>
+        </button>
+
+        <h2 id="modalTitulo">Información</h2>
+        <p id="modalTexto">Información.</p>
+    </div>
+</div>
+
+<!-- ================= JAVASCRIPT ================= -->
+<script>
+/* ================= MENU ================= */
+const menuToggle=document.getElementById("menuToggle");
+const menu=document.getElementById("menu");
+
+menuToggle.addEventListener("click",()=>{
+    menu.classList.toggle("show");
+    const icon=menuToggle.querySelector("i");
+
+    if(menu.classList.contains("show")){
+        icon.classList.remove("fa-bars");
+        icon.classList.add("fa-xmark");
+    }else{
+        icon.classList.remove("fa-xmark");
+        icon.classList.add("fa-bars");
+    }
+});
+
+document.querySelectorAll(".menu a").forEach(link=>{
+    link.addEventListener("click",()=>{
+        menu.classList.remove("show");
+        const icon=menuToggle.querySelector("i");
+        icon.classList.remove("fa-xmark");
+        icon.classList.add("fa-bars");
+    });
+});
+
+/* ================= HEADER SCROLL ================= */
+const header=document.getElementById("header");
+
+window.addEventListener("scroll",()=>{
+    if(window.scrollY>50) header.classList.add("scrolled");
+    else header.classList.remove("scrolled");
+});
+
+/* ================= BOTON ARRIBA ================= */
+const arriba=document.getElementById("arriba");
+
+window.addEventListener("scroll",()=>{
+    if(window.scrollY>500) arriba.classList.add("mostrar");
+    else arriba.classList.remove("mostrar");
+});
+
+arriba.addEventListener("click",()=>{
+    window.scrollTo({top:0,behavior:"smooth"});
+});
+
+/* ================= ANIMACIONES ================= */
+const elementos=document.querySelectorAll(".reveal");
+
+const observer=new IntersectionObserver(entradas=>{
+    entradas.forEach(entrada=>{
+        if(entrada.isIntersecting){
+            entrada.target.classList.add("visible");
+            observer.unobserve(entrada.target);
+        }
+    });
+},{threshold:.12});
+
+elementos.forEach(elemento=>observer.observe(elemento));
+
+/* ================= CONTADORES ================= */
+const numeros=document.querySelectorAll(".numero");
+let contadorIniciado=false;
+
+function iniciarContadores(){
+    if(contadorIniciado)return;
+    contadorIniciado=true;
+
+    numeros.forEach(numero=>{
+        const objetivo=Number(numero.dataset.target);
+        let actual=0;
+        const incremento=Math.max(1,Math.ceil(objetivo/60));
+
+        const intervalo=setInterval(()=>{
+            actual+=incremento;
+
+            if(actual>=objetivo){
+                actual=objetivo;
+                clearInterval(intervalo);
+            }
+
+            if(numero.parentElement.querySelector("i").classList.contains("fa-computer")){
+                numero.textContent=actual;
+            }else if(numero.dataset.target==="100"){
+                numero.textContent=actual+"%";
+            }else{
+                numero.textContent=actual;
+            }
+        },25);
+    });
+}
+
+const estadisticas=document.querySelector(".estadisticas");
+
+const contadorObserver=new IntersectionObserver(entradas=>{
+    if(entradas[0].isIntersecting){
+        iniciarContadores();
+        contadorObserver.disconnect();
+    }
+},{threshold:.4});
+
+contadorObserver.observe(estadisticas);
+
+/* ================= MODAL ================= */
+const modal=document.getElementById("modal");
+const modalTitulo=document.getElementById("modalTitulo");
+const modalTexto=document.getElementById("modalTexto");
+const cerrar=document.getElementById("cerrar");
+
+function abrirModal(titulo,texto){
+    modalTitulo.textContent=titulo;
+    modalTexto.textContent=texto;
+    modal.classList.add("mostrar");
+    document.body.style.overflow="hidden";
+}
+
+function cerrarModal(){
+    modal.classList.remove("mostrar");
+    document.body.style.overflow="";
+}
+
+cerrar.addEventListener("click",cerrarModal);
+
+modal.addEventListener("click",evento=>{
+    if(evento.target===modal) cerrarModal();
+});
+
+document.addEventListener("keydown",evento=>{
+    if(evento.key==="Escape") cerrarModal();
+});
+
+document.getElementById("infoBtn").addEventListener("click",()=>{
+    abrirModal(
+        "¿Qué aprenderás en Computación?",
+        "Durante la carrera desarrollarás conocimientos relacionados con hardware, software, soporte técnico, mantenimiento de computadoras, redes, programación y seguridad informática. También desarrollarás habilidades de lógica, resolución de problemas, trabajo en equipo y utilización responsable de la tecnología."
+    );
+});
+
+/* ================= AREAS INTERACTIVAS ================= */
+document.querySelectorAll(".area").forEach(area=>{
+    area.addEventListener("click",()=>{
+        abrirModal(area.dataset.title,area.dataset.text);
+    });
+});
+
+/* ================= CONTACTO ================= */
+document.getElementById("contactoBtn").addEventListener("click",()=>{
+    abrirModal(
+        "Información de contacto",
+        "Para obtener más información sobre Quinto Bachillerato en Ciencias y Letras con Orientación en Computación puedes comunicarte con el Liceo ICC al teléfono +502 7839 4756 o escribir al correo infoliceoicc@gmail.com."
+    );
+});
+
+/* ================= MENU ACTIVO ================= */
+const secciones=document.querySelectorAll("section[id]");
+const enlaces=document.querySelectorAll(".menu a");
+
+window.addEventListener("scroll",()=>{
+    let actual="";
+
+    secciones.forEach(seccion=>{
+        const posicion=seccion.offsetTop-160;
+        if(window.scrollY>=posicion) actual=seccion.id;
+    });
+
+    enlaces.forEach(enlace=>{
+        enlace.classList.remove("active");
+        if(enlace.getAttribute("href")==="#"+actual){
+            enlace.classList.add("active");
+        }
+    });
+});
+
+/* ================= CARRUSEL VIDEO + 3 IMAGENES ================= */
+const slides=document.querySelectorAll(".hero-slide");
+const indicadores=document.querySelectorAll(".carousel-indicator");
+const botonAnterior=document.getElementById("carouselPrev");
+const botonSiguiente=document.getElementById("carouselNext");
+const video=document.getElementById("heroVideo");
+
+let slideActual=0;
+let intervaloCarrusel;
+
+/* Mostrar slide */
+function mostrarSlide(numero){
+    slides.forEach((slide,indice)=>{
+        slide.classList.toggle("active",indice===numero);
+    });
+
+    indicadores.forEach((indicador,indice)=>{
+        indicador.classList.toggle("active",indice===numero);
+    });
+
+    slideActual=numero;
+
+    if(video){
+        if(slideActual===0){
+            video.currentTime=0;
+            video.play().catch(()=>{});
+        }else{
+            video.pause();
+        }
+    }
+}
+
+/* Siguiente */
+function siguienteSlide(){
+    let siguiente=slideActual+1;
+    if(siguiente>=slides.length) siguiente=0;
+    mostrarSlide(siguiente);
+}
+
+/* Anterior */
+function anteriorSlide(){
+    let anterior=slideActual-1;
+    if(anterior<0) anterior=slides.length-1;
+    mostrarSlide(anterior);
+}
+
+/* Botones */
+botonSiguiente.addEventListener("click",()=>{
+    siguienteSlide();
+    reiniciarCarrusel();
+});
+
+botonAnterior.addEventListener("click",()=>{
+    anteriorSlide();
+    reiniciarCarrusel();
+});
+
+/* Indicadores */
+indicadores.forEach(indicador=>{
+    indicador.addEventListener("click",()=>{
+        const numero=Number(indicador.dataset.slide);
+        mostrarSlide(numero);
+        reiniciarCarrusel();
+    });
+});
+
+/* Cambio automático */
+function iniciarCarrusel(){
+    intervaloCarrusel=setInterval(()=>{
+        siguienteSlide();
+    },6000);
+}
+
+function reiniciarCarrusel(){
+    clearInterval(intervaloCarrusel);
+    iniciarCarrusel();
+}
+
+iniciarCarrusel();
+
+/* Si termina el video, pasa a la primera imagen */
+if(video){
+    video.addEventListener("ended",()=>{
+        siguienteSlide();
+        reiniciarCarrusel();
+    });
+}
+</script>
+
+</body>
+</html>
