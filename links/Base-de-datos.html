@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Base de Datos | Liceo ICC</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+    --verde:#3aa927;
+    --verde-claro:#55d43d;
+    --verde-oscuro:#003e2f;
+    --negro:#050505;
+    --negro2:#0c0c0c;
+    --negro3:#121212;
+    --gris:#999;
+    --blanco:#fff;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+    font-family:'Montserrat',sans-serif;
+    background:var(--negro);
+    color:white;
+    line-height:1.6;
+    overflow-x:hidden;
+}
+
+a{text-decoration:none;color:inherit}
+
+button{font-family:inherit}
+
+
+/* ================= HEADER ================= */
+
+header{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    z-index:1000;
+    background:rgba(0,0,0,.86);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(58,169,39,.15);
+    transition:.3s;
+}
+
+header.scrolled{
+    background:rgba(0,0,0,.97);
+    box-shadow:0 5px 30px rgba(0,0,0,.5);
+}
+
+.navbar{
+    max-width:1250px;
+    min-height:80px;
+    padding:10px 25px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.logo,
+.logo-footer{
+    width:80px;
+    height:100px;
+    object-fit:contain;
+    display:block;
+    border:none;
+    border-radius:0;
+    box-shadow:none;
+     box-shadow: rgba(0,0,0,.86);
+}
+
+.logo{
+    margin-left:20px;
+    cursor:pointer;
+}
+
+.logo-footer{
+    width:80px;
+    height:100px;
+}
+.menu{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.menu a{
+    position:relative;
+    padding:10px 15px;
+    color:#eee;
+    font-size:14px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.menu a::after{
+    content:"";
+    position:absolute;
+    bottom:2px;
+    left:50%;
+    width:0;
+    height:2px;
+    background:var(--verde);
+    transform:translateX(-50%);
+    transition:.3s;
+}
+
+.menu a:hover,.menu a.active{
+    color:var(--verde);
+}
+
+.menu a:hover::after,.menu a.active::after{
+    width:70%;
+}
+
+.menu-toggle{
+    display:none;
+    width:45px;
+    height:45px;
+    border:1px solid #333;
+    border-radius:10px;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    font-size:20px;
+}
+
+
+/* ================= SECCIONES ================= */
+
+.linea{
+    height:5px;
+    display:flex;
+}
+
+.linea1{
+    width:65%;
+    background:var(--verde-oscuro);
+}
+
+.linea2{
+    width:25%;
+    background:var(--verde);
+}
+
+.linea3{
+    width:10%;
+    background:white;
+}
+
+.seccion{
+    max-width:1250px;
+    margin:auto;
+    padding:90px 25px;
+}
+
+.titulo{
+    text-align:center;
+    margin-bottom:55px;
+}
+
+.titulo small{
+    color:var(--verde);
+    font-weight:700;
+    letter-spacing:3px;
+}
+
+.titulo h2{
+    font-size:clamp(2rem,4vw,3rem);
+    margin:10px 0;
+}
+
+.titulo p{
+    max-width:700px;
+    margin:auto;
+    color:#999;
+}
+
+
+/* ================= CURSO ================= */
+
+.course-hero{
+    min-height:65vh;
+    position:relative;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 80% 20%, rgba(58,169,39,.18), transparent 35%),
+        linear-gradient(145deg, #003e2f, #050505 65%);
+}
+
+.course-hero-content{
+    max-width:1250px;
+    width:100%;
+    margin:auto;
+    padding:150px 25px 80px;
+}
+
+.course-hero small{
+    color:var(--verde);
+    font-weight:700;
+    letter-spacing:3px;
+}
+
+.course-hero h1{
+    font-size:clamp(2.5rem,6vw,5rem);
+    line-height:1.05;
+    margin:12px 0 20px;
+}
+
+.course-hero h1 span{
+    color:var(--verde);
+}
+
+.course-hero p{
+    max-width:760px;
+    color:#bbb;
+    font-size:16px;
+}
+
+.course-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    margin-top:28px;
+    padding:14px 25px;
+    border-radius:30px;
+    background:var(--verde);
+    color:white;
+    font-weight:700;
+    transition:.3s;
+}
+
+.course-btn:hover{
+    background:var(--verde-claro);
+    transform:translateY(-4px);
+    box-shadow:0 10px 30px rgba(58,169,39,.3);
+}
+
+
+/* ================= INFORMACIÓN ================= */
+
+.course-info-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+
+.course-block{
+    padding:35px;
+    background:#101010;
+    border:1px solid #222;
+    border-radius:20px;
+    transition:.3s;
+}
+
+.course-block:hover{
+    transform:translateY(-6px);
+    border-color:var(--verde);
+}
+
+.course-block h3{
+    font-size:24px;
+    margin-bottom:15px;
+}
+
+.course-block h3 i{
+    color:var(--verde);
+    margin-right:10px;
+}
+
+.course-block p,
+.course-block li{
+    color:#aaa;
+}
+
+.course-block ul{
+    list-style:none;
+}
+
+.course-block li{
+    margin:12px 0;
+}
+
+.course-block li i{
+    color:var(--verde);
+    margin-right:9px;
+}
+
+
+/* ================= GALERÍA ================= */
+
+.course-gallery{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:22px;
+}
+
+.course-image{
+    height:300px;
+    border-radius:20px;
+    border:1px dashed #444;
+    background:linear-gradient(145deg,#141414,#090909);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#666;
+    overflow:hidden;
+    position:relative;
+    transition:.4s;
+}
+
+.course-image:hover{
+    transform:translateY(-8px);
+    border-color:var(--verde);
+    box-shadow:0 20px 50px rgba(58,169,39,.12);
+}
+
+.course-image-content{
+    text-align:center;
+    padding:20px;
+}
+
+.course-image-content i{
+    display:block;
+    font-size:42px;
+    color:var(--verde);
+    margin-bottom:12px;
+}
+
+.course-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+
+/* ================= FORMACIÓN ================= */
+
+.course-topics{
+    margin-top:30px;
+    padding:30px;
+    border-radius:20px;
+    background:linear-gradient(120deg,#003e2f,#101010);
+    border:1px solid rgba(58,169,39,.3);
+}
+
+.course-topics h3{
+    margin-bottom:12px;
+}
+
+.course-topics p{
+    color:#bbb;
+}
+
+
+/* ================= FOOTER ================= */
+
+footer{
+    background:#090909;
+    border-top:1px solid #222;
+}
+
+.footer-container{
+    max-width:1200px;
+    margin:auto;
+    padding:70px 25px 40px;
+    display:grid;
+    grid-template-columns:1.2fr 1fr 1.3fr;
+    gap:50px;
+}
+
+.footer-logo p{
+    color:var(--verde);
+    font-weight:700;
+    margin-top:10px;
+}
+
+footer h3{
+    color:var(--verde);
+    margin-bottom:20px;
+}
+
+.footer-links ul{
+    list-style:none;
+}
+
+.footer-links li{
+    margin:10px 0;
+}
+
+.footer-links a{
+    color:#999;
+    transition:.3s;
+}
+
+.footer-links a:hover{
+    color:var(--verde);
+    padding-left:5px;
+}
+
+.contact p{
+    color:#999;
+    margin:10px 0;
+    font-size:14px;
+}
+
+.social{
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+}
+
+.social a{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#181818;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    transition:.3s;
+}
+
+.social a:hover{
+    background:var(--verde);
+    transform:translateY(-4px);
+}
+
+.footer-bottom{
+    border-top:1px solid #222;
+    padding:20px;
+    text-align:center;
+    color:#666;
+    font-size:12px;
+}
+
+
+/* ================= REVEAL ================= */
+
+.reveal{
+    opacity:0;
+    transform:translateY(40px);
+    transition:opacity .8s ease,transform .8s ease;
+}
+
+.reveal.visible{
+    opacity:1;
+    transform:translateY(0);
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1000px){
+
+    .course-info-grid{
+        grid-template-columns:1fr;
+    }
+
+    .course-gallery{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:700px){
+
+    .menu-toggle{
+        display:flex;
+    }
+
+    .menu{
+        position:absolute;
+        top:70px;
+        left:0;
+        width:100%;
+        background:#050505;
+        flex-direction:column;
+        align-items:stretch;
+        padding:15px 20px;
+        opacity:0;
+        visibility:hidden;
+        transform:translateY(-20px);
+        transition:.3s;
+    }
+
+    .menu.show{
+        opacity:1;
+        visibility:visible;
+        transform:translateY(0);
+    }
+
+    .menu a{
+        text-align:center;
+        padding:14px;
+    }
+
+    .course-hero h1{
+        font-size:2.4rem;
+    }
+
+    .course-hero p{
+        font-size:14px;
+    }
+
+    .course-gallery{
+        grid-template-columns:1fr;
+    }
+
+    .footer-container{
+        grid-template-columns:1fr;
+        text-align:center;
+    }
+
+    .social{
+        justify-content:center;
+    }
+
+    .course-image{
+        height:250px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- ================= HEADER ================= -->
+
+<header id="header">
+
+<nav class="navbar">
+
+<a href="../expoo2.html">
+
+<img src="../recursos/LOGO COLORES.png"
+     class="logo"
+     alt="Liceo ICC">
+
+</a>
+
+
+<div class="menu-toggle" id="menuToggle">
+
+<i class="fas fa-bars"></i>
+
+</div>
+
+
+<div class="menu" id="menu">
+
+<a href="../expoo2.html">
+INICIO
+</a>
+
+<a href="../expoo2.html#carrera">
+CARRERA
+</a>
+
+
+
+
+
+<a href="../expoo2.html#areas">
+ÁREAS
+</a>
+
+<a href="../expoo2.html#perfil">
+PERFIL
+</a>
+
+<a href="../expoo2.html#contacto">
+CONTACTO
+</a>
+
+</div>
+
+</nav>
+
+</header>
+
+
+
+<!-- =====================================================
+     HERO DEL CURSO
+===================================================== -->
+
+<section class="course-hero">
+
+<div class="course-hero-content">
+
+<small id="categoria">
+ÁREA DE FORMACIÓN
+</small>
+
+
+<h1 id="tituloCurso">
+Base de <span>Datos</span>
+</h1>
+
+
+<p id="descripcionCurso">
+
+Aprende a organizar, almacenar, consultar y administrar
+información mediante bases de datos, utilizando estructuras
+y herramientas que permiten trabajar con grandes cantidades
+de información de manera organizada y eficiente.
+
+</p>
+
+
+<a href="../expoo2.html#areas"
+   class="course-btn">
+
+<i class="fas fa-arrow-left"></i>
+
+Volver a las áreas
+
+</a>
+
+</div>
+
+</section>
+
+
+
+<div class="linea">
+
+<div class="linea1"></div>
+<div class="linea2"></div>
+<div class="linea3"></div>
+
+</div>
+
+
+
+<!-- =====================================================
+     INFORMACIÓN DEL CURSO
+===================================================== -->
+
+<section class="seccion reveal">
+
+<div class="titulo">
+
+<small>
+INFORMACIÓN DEL CURSO
+</small>
+
+<h2>
+¿Qué aprenderás en Base de Datos?
+</h2>
+
+<p id="introCurso">
+
+En esta área conocerás cómo almacenar, organizar,
+consultar y administrar información de manera estructurada
+utilizando bases de datos.
+
+</p>
+
+</div>
+
+
+<div class="course-info-grid">
+
+
+<article class="course-block">
+
+<h3>
+
+<i class="fas fa-bullseye"></i>
+
+Objetivo
+
+</h3>
+
+<p id="objetivoCurso">
+
+Desarrollar habilidades para diseñar, crear y administrar
+bases de datos, utilizando tablas, relaciones y consultas
+para organizar información de forma eficiente.
+
+</p>
+
+</article>
+
+
+<article class="course-block">
+
+<h3>
+
+<i class="fas fa-list-check"></i>
+
+Temas principales
+
+</h3>
+
+<ul id="temasCurso">
+
+<li>
+<i class="fas fa-check-circle"></i>
+Conceptos de bases de datos
+</li>
+
+<li>
+<i class="fas fa-check-circle"></i>
+Tablas y registros
+</li>
+
+<li>
+<i class="fas fa-check-circle"></i>
+Campos y tipos de datos
+</li>
+
+<li>
+<i class="fas fa-check-circle"></i>
+Claves primarias y foráneas
+</li>
+
+<li>
+<i class="fas fa-check-circle"></i>
+Relaciones entre tablas
+</li>
+
+<li>
+<i class="fas fa-check-circle"></i>
+Consultas SQL
+</li>
+
+<li>
+<i class="fas fa-check-circle"></i>
+Inserción y modificación de datos
+</li>
+
+<li>
+<i class="fas fa-check-circle"></i>
+Diseño y organización de bases de datos
+</li>
+
+</ul>
+
+</article>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     GALERÍA
+===================================================== -->
+
+<section class="seccion reveal">
+
+<div class="titulo">
+
+<small>
+RECURSOS VISUALES
+</small>
+
+<h2>
+Conoce el área
+</h2>
+
+<p>
+
+ 
+
+</p>
+
+</div>
+
+
+<div class="course-gallery">
+
+
+ <div class="course-image">
+        <img src="../recursos/Base.jpeg" alt="Diseño web">
+    </div>
+
+    <div class="course-image">
+        <img src="../recursos/Base2.jpeg" alt="Programación web">
+    </div>
+
+    <div class="course-image">
+        <img src="../recursos/Base3.jpeg" alt="Proyecto web">
+    </div>
+
+</div>
+
+
+
+</section>
+
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer id="contacto">
+
+<div class="footer-container">
+
+
+<div class="footer-logo">
+
+<img src="../recursos/LOGO COLORES.png"
+     alt="Logo Liceo ICC"
+     class="logo-footer">
+
+<p>
+Liceo ICC
+</p>
+
+<span style="color:#777;font-size:13px;">
+Formación académica y tecnológica.
+</span>
+
+</div>
+
+
+
+<div class="footer-links">
+
+<h3>
+Enlaces rápidos
+</h3>
+
+<ul>
+
+<li>
+<a href="../expoo2.html">
+Inicio
+</a>
+</li>
+
+<li>
+<a href="../expoo2.html#carrera">
+Carrera
+</a>
+</li>
+
+
+
+
+
+<li>
+<a href="../expoo2.html#areas">
+Áreas
+</a>
+</li>
+
+<li>
+<a href="../expoo2.html#perfil">
+Perfil
+</a>
+</li>
+
+</ul>
+
+</div>
+
+
+
+<div class="contact">
+
+<h3>
+Contacto
+</h3>
+
+<p>
+<i class="fas fa-location-dot"></i>
+4 Avenida 5-80, Chimaltenango
+</p>
+
+<p>
+<i class="fas fa-phone"></i>
++502 7839 4756
+</p>
+
+<p>
+<i class="fas fa-envelope"></i>
+infoliceoicc@gmail.com
+</p>
+
+
+<div class="social">
+
+<a href="https://www.facebook.com/share/1DHp2bt4QQ/"
+   target="_blank">
+
+<i class="fab fa-facebook-f"></i>
+
+</a>
+
+
+<a href="https://www.instagram.com/liceoicc/"
+   target="_blank">
+
+<i class="fab fa-instagram"></i>
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="footer-bottom">
+
+© 2026 Liceo ICC | Todos los derechos reservados.
+
+</div>
+
+</footer>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script>
+
+
+/* ================= MENÚ ================= */
+
+const menuToggle =
+document.getElementById("menuToggle");
+
+const menu =
+document.getElementById("menu");
+
+
+menuToggle.addEventListener("click", () => {
+
+menu.classList.toggle("show");
+
+});
+
+
+document.querySelectorAll(".menu a").forEach(enlace => {
+
+enlace.addEventListener("click", () => {
+
+menu.classList.remove("show");
+
+});
+
+});
+
+
+/* ================= HEADER ================= */
+
+const header =
+document.getElementById("header");
+
+
+window.addEventListener("scroll", () => {
+
+if(window.scrollY > 50){
+
+header.classList.add("scrolled");
+
+}else{
+
+header.classList.remove("scrolled");
+
+}
+
+});
+
+
+/* ================= ANIMACIONES ================= */
+
+const elementosReveal =
+document.querySelectorAll(".reveal");
+
+
+const observer =
+new IntersectionObserver((entradas) => {
+
+entradas.forEach((entrada) => {
+
+if(entrada.isIntersecting){
+
+entrada.target.classList.add("visible");
+
+observer.unobserve(entrada.target);
+
+}
+
+});
+
+},{
+    threshold:0.12
+});
+
+
+elementosReveal.forEach((elemento) => {
+
+observer.observe(elemento);
+
+});
+
+
+</script>
+
+</body>
+</html>
